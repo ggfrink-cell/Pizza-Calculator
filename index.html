@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#8b572a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Dough Calc">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Pizza Dough Calculator</title>
+  <style>
+    :root{--background:#f5f1e8;--card:#fff;--text:#29251f;--muted:#716a60;--border:#ded6c9;--accent:#8b572a;--accent-hover:#71451f;--input:#fff;--output:#faf7f1;--green:#39724a;--red:#a83d3d}
+    *{box-sizing:border-box} body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--background)}
+    .container{max-width:850px;margin:0 auto} h1{margin:0 0 4px} h2{margin-top:0;font-size:1.2rem}.subtitle{color:var(--muted);margin-top:0;margin-bottom:24px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}.input-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.percentage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .field label{display:block;font-weight:600;margin-bottom:6px}.field small{display:block;color:var(--muted);margin-top:5px}input{width:100%;padding:12px;font-size:1rem;color:var(--text);background:var(--input);border:1px solid #c9c0b2;border-radius:8px}input:focus,button:focus-visible{outline:3px solid rgba(139,87,42,.35);outline-offset:2px}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.summary-box{background:var(--output);border:1px solid var(--border);border-radius:10px;padding:14px}.summary-label{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}.summary-value{font-size:1.55rem;font-weight:750;margin-top:3px}
+    table{width:100%;border-collapse:collapse}th,td{padding:11px 8px;border-bottom:1px solid var(--border)}th{text-align:left;color:var(--muted);font-size:.85rem}td.number,th.number{text-align:right;font-variant-numeric:tabular-nums}td.number{font-weight:700}.subingredient{padding-left:28px;color:var(--muted)}
+    .button-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}button{min-height:44px;padding:10px 16px;border:0;border-radius:8px;font-size:.95rem;font-weight:650;cursor:pointer}button.primary{color:#fff;background:var(--accent)}button.primary:hover{background:var(--accent-hover)}button.secondary{color:var(--text);background:#e9e1d5}.valid{color:var(--green)}.invalid{color:var(--red)}#splitStatus{margin-top:10px;font-size:.9rem;font-weight:600}
+    .recipe-steps,.recipe-steps ol{counter-reset:item;list-style-type:none}.recipe-steps{padding-left:0}.recipe-steps ol{padding-left:30px;margin-top:6px}.recipe-steps li{display:block;margin:6px 0}.recipe-steps li::before{content:counters(item,".") ". ";counter-increment:item;font-weight:700}
+    .install-note{font-size:.9rem;color:var(--muted)}
+    @media(max-width:650px){body{padding:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}.input-grid,.percentage-grid,.summary{grid-template-columns:1fr}.card{padding:16px}.button-row button{flex:1 1 130px}th,td{padding:10px 4px}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Pizza Dough Calculator</h1>
+  <p class="subtitle">Choose a pizza size and recipe, or adjust any value.</p>
+
+  <div class="card">
+    <h2>Dough Size</h2>
+    <div class="field"><label>Pizza Size</label><div class="button-row"><button type="button" class="primary" id="size16Button">16&quot; Pizza</button><button type="button" class="secondary" id="size12Button">12&quot; Pizza</button></div></div>
+    <div class="input-grid" style="margin-top:16px">
+      <div class="field"><label for="ballCount">Number of Dough Balls</label><input id="ballCount" type="number" min="1" max="100" step="1" value="1"><small>One dough ball per pizza</small></div>
+      <div class="field"><label for="ballWeight">Dough Ball Weight (g)</label><input id="ballWeight" type="number" min="1" max="5000" step="1" value="470"><small id="pizzaSizeDescription">16&quot; default: 470 g</small></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>Recipe Type</h2><div class="button-row"><button type="button" class="primary" id="type1Button">Type 1</button><button type="button" class="secondary" id="type2Button">Type 2</button></div><p id="recipeTypeDescription" class="subtitle" style="margin:12px 0 0">Type 1: Original recipe</p></div>
+
+  <div class="card"><h2>Baker's Percentages</h2><p class="subtitle">Percentages are relative to total flour weight.</p><div class="percentage-grid">
+    <div class="field"><label for="waterPct">Water %</label><input id="waterPct" type="number" min="0" max="200" step="0.1" value="62"></div>
+    <div class="field"><label for="saltPct">Salt %</label><input id="saltPct" type="number" min="0" max="20" step="0.1" value="2.5"></div>
+    <div class="field"><label for="sugarPct">Sugar %</label><input id="sugarPct" type="number" min="0" max="50" step="0.1" value="1.5"></div>
+    <div class="field"><label for="oilPct">Oil %</label><input id="oilPct" type="number" min="0" max="50" step="0.1" value="2"></div>
+    <div class="field"><label for="yeastPct">Yeast %</label><input id="yeastPct" type="number" min="0" max="10" step="0.01" value="0.06"></div>
+  </div><div class="button-row"><button type="button" class="secondary" id="coldYeastButton">Yeast 0.06%</button><button type="button" class="secondary" id="warmYeastButton">Yeast 0.03%</button></div></div>
+
+  <div class="card"><h2>Flour Blend</h2><div class="input-grid"><div class="field"><label for="breadFlourPct">Bread Flour %</label><input id="breadFlourPct" type="number" min="0" max="100" step="1" value="70"></div><div class="field"><label for="apFlourPct">All-Purpose Flour %</label><input id="apFlourPct" type="number" min="0" max="100" step="1" value="30"></div></div><div id="splitStatus"></div></div>
+
+  <div class="card"><h2>Dough Summary</h2><div class="summary"><div class="summary-box"><div class="summary-label">Total Dough</div><div class="summary-value" id="totalDough">0 g</div></div><div class="summary-box"><div class="summary-label">Total Flour</div><div class="summary-value" id="totalFlour">0 g</div></div><div class="summary-box"><div class="summary-label">Hydration</div><div class="summary-value" id="hydration">62%</div></div></div></div>
+
+  <div class="card"><h2>Ingredient Weights</h2><table><thead><tr><th>Ingredient</th><th class="number">Baker's %</th><th class="number">Weight</th></tr></thead><tbody>
+    <tr><td>Total Flour</td><td class="number">100%</td><td class="number" id="flourWeight"></td></tr><tr><td class="subingredient">Bread Flour</td><td class="number" id="breadPercentOutput"></td><td class="number" id="breadWeight"></td></tr><tr><td class="subingredient">All-Purpose Flour</td><td class="number" id="apPercentOutput"></td><td class="number" id="apWeight"></td></tr><tr><td>Water @ ~50°F</td><td class="number" id="waterPercentOutput"></td><td class="number" id="waterWeight"></td></tr><tr><td>Salt</td><td class="number" id="saltPercentOutput"></td><td class="number" id="saltWeight"></td></tr><tr><td>Sugar</td><td class="number" id="sugarPercentOutput"></td><td class="number" id="sugarWeight"></td></tr><tr><td>Oil</td><td class="number" id="oilPercentOutput"></td><td class="number" id="oilWeight"></td></tr><tr><td>Yeast</td><td class="number" id="yeastPercentOutput"></td><td class="number" id="yeastWeight"></td></tr>
+  </tbody></table></div>
+
+  <div class="card"><div class="button-row"><button type="button" class="primary" id="resetButton">Reset to Original Recipe</button></div><p class="install-note">Your latest settings are saved on this device.</p></div>
+
+  <div class="card"><h2>Recipe Notes</h2><ol class="recipe-steps"><li>Combine flour, yeast, and sugar in stand mixer or by hand.</li><li>Add water on low until incorporated. Add ice to chill the water, remove the ice, and weigh the needed amount.</li><li>Add salt and mix until combined.</li><li>Add oil and mix until smooth.</li><li>Perform stretch and folds until the dough passes the windowpane test.</li><li>Bulk ferment.<ol><li>Type 1<ol><li>Ferment at room temperature for 12-18 hours.</li><li>Portion dough into individual oiled containers.</li><li>Let rest at room temperature for 1-5 hours before using.</li></ol></li><li>Type 2<ol><li>Ferment at room temperature for 12 hours.</li><li>Refrigerate for at least 12 additional hours, up to 48 hours.</li><li>Portion dough into individual oiled containers.</li><li>Let rest at room temperature for 4-5 hours before using.</li></ol></li></ol></li></ol></div>
+</div>
+<script>
+"use strict";
+document.addEventListener("DOMContentLoaded", function () {
+  const ids=["ballCount","ballWeight","size16Button","size12Button","pizzaSizeDescription","waterPct","saltPct","sugarPct","oilPct","yeastPct","breadFlourPct","apFlourPct","totalDough","totalFlour","hydration","flourWeight","breadWeight","apWeight","waterWeight","saltWeight","sugarWeight","oilWeight","yeastWeight","breadPercentOutput","apPercentOutput","waterPercentOutput","saltPercentOutput","sugarPercentOutput","oilPercentOutput","yeastPercentOutput","splitStatus","coldYeastButton","warmYeastButton","type1Button","type2Button","recipeTypeDescription","resetButton"];
+  const elements={}; ids.forEach(id=>elements[id]=document.getElementById(id));
+  const defaults={ballCount:1,ballWeight:470,waterPct:62,saltPct:2.5,sugarPct:1.5,oilPct:2,yeastPct:.06,breadFlourPct:70,apFlourPct:30};
+  const type1Recipe={waterPct:62,saltPct:2.5,sugarPct:1.5,oilPct:2,yeastPct:.06,breadFlourPct:70,apFlourPct:30};
+  const type2Recipe={waterPct:65,saltPct:2.5,sugarPct:1.9,oilPct:1.9,yeastPct:.06,breadFlourPct:70,apFlourPct:30};
+  const pizzaSizes={size16:{name:'16"',weight:470},size12:{name:'12"',weight:265}};
+  const inputIds=["ballCount","ballWeight","waterPct","saltPct","sugarPct","oilPct","yeastPct","breadFlourPct","apFlourPct"];
+  function readNumber(el,fallback){const value=Number(el.value);return Number.isFinite(value)?value:fallback}
+  function formatWeight(value){if(!Number.isFinite(value)||value<0)return"0 g";if(value<1)return value.toFixed(2)+" g";if(value<10)return value.toFixed(1)+" g";return Math.round(value)+" g"}
+  function formatPercent(value){return Number.isFinite(value)?Number(value.toFixed(2))+"%":"0%"}
+  function updateSizeUI(){const w=Number(elements.ballWeight.value);if(w===470){elements.size16Button.className="primary";elements.size12Button.className="secondary";elements.pizzaSizeDescription.textContent='16" default: 470 g'}else if(w===265){elements.size16Button.className="secondary";elements.size12Button.className="primary";elements.pizzaSizeDescription.textContent='12" default: 265 g'}else{elements.size16Button.className="secondary";elements.size12Button.className="secondary";elements.pizzaSizeDescription.textContent="Custom dough ball weight"}}
+  function save(){const state={};inputIds.forEach(id=>state[id]=elements[id].value);localStorage.setItem("pizzaDoughCalculatorState",JSON.stringify(state))}
+  function calculate(){
+    const ballCount=Math.max(1,readNumber(elements.ballCount,defaults.ballCount)); const ballWeight=Math.max(1,readNumber(elements.ballWeight,defaults.ballWeight));
+    const waterPct=Math.max(0,readNumber(elements.waterPct,defaults.waterPct)); const saltPct=Math.max(0,readNumber(elements.saltPct,defaults.saltPct)); const sugarPct=Math.max(0,readNumber(elements.sugarPct,defaults.sugarPct)); const oilPct=Math.max(0,readNumber(elements.oilPct,defaults.oilPct)); const yeastPct=Math.max(0,readNumber(elements.yeastPct,defaults.yeastPct));
+    const breadFlourPct=Math.max(0,readNumber(elements.breadFlourPct,defaults.breadFlourPct)); const apFlourPct=Math.max(0,readNumber(elements.apFlourPct,defaults.apFlourPct));
+    const totalDough=ballCount*ballWeight; const totalBakersPercent=100+waterPct+saltPct+sugarPct+oilPct+yeastPct; const flour=totalDough/(totalBakersPercent/100);
+    const split=breadFlourPct+apFlourPct; const bread=split>0?flour*(breadFlourPct/split):0; const ap=split>0?flour*(apFlourPct/split):0;
+    elements.totalDough.textContent=formatWeight(totalDough);elements.totalFlour.textContent=formatWeight(flour);elements.hydration.textContent=formatPercent(waterPct);elements.flourWeight.textContent=formatWeight(flour);elements.breadWeight.textContent=formatWeight(bread);elements.apWeight.textContent=formatWeight(ap);elements.waterWeight.textContent=formatWeight(flour*waterPct/100);elements.saltWeight.textContent=formatWeight(flour*saltPct/100);elements.sugarWeight.textContent=formatWeight(flour*sugarPct/100);elements.oilWeight.textContent=formatWeight(flour*oilPct/100);elements.yeastWeight.textContent=formatWeight(flour*yeastPct/100);
+    elements.breadPercentOutput.textContent=formatPercent(breadFlourPct);elements.apPercentOutput.textContent=formatPercent(apFlourPct);elements.waterPercentOutput.textContent=formatPercent(waterPct);elements.saltPercentOutput.textContent=formatPercent(saltPct);elements.sugarPercentOutput.textContent=formatPercent(sugarPct);elements.oilPercentOutput.textContent=formatPercent(oilPct);elements.yeastPercentOutput.textContent=formatPercent(yeastPct);
+    if(Math.abs(split-100)<.001){elements.splitStatus.textContent="Flour blend = 100%";elements.splitStatus.className="valid"}else{elements.splitStatus.textContent="Flour blend totals "+formatPercent(split)+". The ratio is normalized automatically.";elements.splitStatus.className="invalid"}
+    updateSizeUI(); save();
+  }
+  function applyRecipe(recipe,name){["waterPct","saltPct","sugarPct","oilPct","yeastPct","breadFlourPct","apFlourPct"].forEach(id=>elements[id].value=recipe[id]);elements.type1Button.className=name==="Type 1"?"primary":"secondary";elements.type2Button.className=name==="Type 2"?"primary":"secondary";elements.recipeTypeDescription.textContent=name==="Type 1"?"Type 1: Original recipe":"Type 2: 65% hydration recipe";calculate()}
+  function setPizzaSize(size){elements.ballWeight.value=size.weight;calculate()}
+  inputIds.forEach(id=>elements[id].addEventListener("input",calculate));
+  elements.size16Button.addEventListener("click",()=>setPizzaSize(pizzaSizes.size16));elements.size12Button.addEventListener("click",()=>setPizzaSize(pizzaSizes.size12));elements.type1Button.addEventListener("click",()=>applyRecipe(type1Recipe,"Type 1"));elements.type2Button.addEventListener("click",()=>applyRecipe(type2Recipe,"Type 2"));elements.coldYeastButton.addEventListener("click",()=>{elements.yeastPct.value="0.06";calculate()});elements.warmYeastButton.addEventListener("click",()=>{elements.yeastPct.value="0.03";calculate()});
+  elements.resetButton.addEventListener("click",()=>{Object.keys(defaults).forEach(id=>elements[id].value=defaults[id]);elements.type1Button.className="primary";elements.type2Button.className="secondary";elements.recipeTypeDescription.textContent="Type 1: Original recipe";calculate()});
+  try{const saved=JSON.parse(localStorage.getItem("pizzaDoughCalculatorState"));if(saved)inputIds.forEach(id=>{if(saved[id]!==undefined)elements[id].value=saved[id]})}catch(error){console.warn("Saved settings could not be loaded.",error)}
+  calculate();
+  if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js").catch(error=>console.warn("Service worker registration failed.",error))}
+});
+</script>
+</body>
+</html>
