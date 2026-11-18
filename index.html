@@ -1,2013 +1,1782 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
-    <meta name="theme-color" content="#8b572a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Dough Calc">
-
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
-    <title>Pizza Dough Calculator</title>
-
-    <style>
-        :root {
-            --background: #f5f1e8;
-            --card: #ffffff;
-            --text: #29251f;
-            --muted: #716a60;
-            --border: #ded6c9;
-            --accent: #8b572a;
-            --accent-hover: #71451f;
-            --input-background: #ffffff;
-            --output-background: #faf7f1;
-            --green: #39724a;
-            --red: #a83d3d;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 24px;
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Arial,
-                sans-serif;
-            color: var(--text);
-            background: var(--background);
-        }
-
-        .container {
-            max-width: 850px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            margin: 0 0 4px;
-        }
-
-        h2 {
-            margin-top: 0;
-            font-size: 1.2rem;
-        }
-
-        .subtitle {
-            color: var(--muted);
-            margin-top: 0;
-            margin-bottom: 24px;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .percentage-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .field label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .field small {
-            display: block;
-            color: var(--muted);
-            margin-top: 5px;
-        }
-
-        input {
-            width: 100%;
-            min-width: 0;
-            padding: 12px;
-            font-size: 1rem;
-            color: var(--text);
-            background: var(--input-background);
-            border: 1px solid #c9c0b2;
-            border-radius: 8px;
-        }
-
-        input:focus,
-        button:focus-visible {
-            outline: 3px solid rgba(139, 87, 42, 0.35);
-            outline-offset: 2px;
-        }
-
-        /*
-         * Permanent mobile-friendly minus / plus controls.
-         */
-        .number-control {
-            display: grid;
-            grid-template-columns: 48px minmax(0, 1fr) 48px;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .number-control input {
-            height: 48px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .step-button {
-            width: 48px;
-            height: 48px;
-            min-height: 48px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            line-height: 1;
-            font-weight: 700;
-            color: #ffffff;
-            background: var(--accent);
-            border: 0;
-            border-radius: 8px;
-            cursor: pointer;
-            touch-action: manipulation;
-            user-select: none;
-        }
-
-        .step-button:hover {
-            background: var(--accent-hover);
-        }
-
-        .step-button:active {
-            transform: scale(0.96);
-        }
-
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .summary-box {
-            background: var(--output-background);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px;
-        }
-
-        .summary-label {
-            color: var(--muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .summary-value {
-            font-size: 1.55rem;
-            font-weight: 750;
-            margin-top: 3px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 11px 8px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            text-align: left;
-            color: var(--muted);
-            font-size: 0.85rem;
-        }
-
-        td.number,
-        th.number {
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-
-        td.number {
-            font-weight: 700;
-        }
-
-        .subingredient {
-            padding-left: 28px;
-            color: var(--muted);
-        }
-
-        .button-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        button {
-            min-height: 44px;
-            padding: 10px 16px;
-            border: 0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 650;
-            cursor: pointer;
-        }
-
-        button.primary {
-            color: #ffffff;
-            background: var(--accent);
-        }
-
-        button.primary:hover {
-            background: var(--accent-hover);
-        }
-
-        button.secondary {
-            color: var(--text);
-            background: #e9e1d5;
-        }
-
-        .valid {
-            color: var(--green);
-        }
-
-        .invalid {
-            color: var(--red);
-        }
-
-        #splitStatus {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .recipe-steps,
-        .recipe-steps ol {
-            counter-reset: item;
-            list-style-type: none;
-        }
-
-        .recipe-steps {
-            padding-left: 0;
-        }
-
-        .recipe-steps ol {
-            padding-left: 30px;
-            margin-top: 6px;
-        }
-
-        .recipe-steps li {
-            display: block;
-            margin: 6px 0;
-        }
-
-        .recipe-steps li::before {
-            content: counters(item, ".") ". ";
-            counter-increment: item;
-            font-weight: 700;
-        }
-
-        .install-note {
-            font-size: 0.9rem;
-            color: var(--muted);
-        }
-
-        @media (max-width: 650px) {
-            body {
-                padding: 12px;
-                padding-top: max(12px, env(safe-area-inset-top));
-                padding-bottom: max(12px, env(safe-area-inset-bottom));
-            }
-
-            .input-grid,
-            .percentage-grid,
-            .summary {
-                grid-template-columns: 1fr;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .button-row button {
-                flex: 1 1 130px;
-            }
-
-            th,
-            td {
-                padding: 10px 4px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <h1>Pizza Dough Calculator</h1>
-
-    <p class="subtitle">
-        Choose a pizza size and recipe, or adjust any value.
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+  <meta content="#8b572a" name="theme-color"/>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+  <meta content="Dough Calc" name="apple-mobile-web-app-title"/>
+  <link href="manifest.json" rel="manifest"/>
+  <link href="icon-192.png" rel="apple-touch-icon"/>
+  <title>
+   Dough Calculator
+  </title>
+  <style>
+   :root {--background:#f5f1e8;--card:#fff;--text:#29251f;--muted:#716a60;--border:#ded6c9;--accent:#8b572a;--accent-hover:#71451f;--input-background:#fff;--output-background:#faf7f1;--green:#39724a;--red:#a83d3d;--warning-background:#fff7df;--warning-border:#d9a52f}
+        *{box-sizing:border-box}body{margin:0;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--background)}.container{max-width:900px;margin:0 auto}h1{margin:0 0 4px}h2{margin-top:0;font-size:1.2rem}h3{margin:14px 0 6px;color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:.06em}.subtitle{color:var(--muted);margin-top:0;margin-bottom:24px}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}.input-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.percentage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field label{display:block;font-weight:600;margin-bottom:6px}.field small{display:block;color:var(--muted);margin-top:5px}input{width:100%;min-width:0;height:48px;padding:12px;font-size:1rem;color:var(--text);background:var(--input-background);border:1px solid #c9c0b2;border-radius:8px;text-align:center;font-weight:600}input:focus,button:focus-visible{outline:3px solid rgba(139,87,42,.35);outline-offset:2px}.number-control{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:8px;align-items:center}.step-button{width:48px;height:48px;min-height:48px;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;line-height:1;font-weight:700;color:#fff;background:var(--accent);border:0;border-radius:8px;cursor:pointer;touch-action:manipulation;user-select:none}.step-button:hover,button.primary:hover{background:var(--accent-hover)}.step-button:active{transform:scale(.96)}.button-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}button{min-height:44px;padding:10px 16px;border:0;border-radius:8px;font-size:.95rem;font-weight:650;cursor:pointer}button.primary{color:#fff;background:var(--accent)}button.secondary{color:var(--text);background:#e9e1d5}.notice{margin-top:14px;padding:12px;border:1px solid var(--warning-border);border-radius:8px;background:var(--warning-background);color:#654a0d}.hidden{display:none!important}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.summary-box{background:var(--output-background);border:1px solid var(--border);border-radius:10px;padding:14px}.summary-label{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}.summary-value{font-size:1.55rem;font-weight:750;margin-top:3px}table{width:100%;border-collapse:collapse}th,td{padding:11px 8px;border-bottom:1px solid var(--border)}th{text-align:left;color:var(--muted);font-size:.85rem}td.number,th.number{text-align:right;font-variant-numeric:tabular-nums}td.number{font-weight:700}.subingredient{padding-left:28px;color:var(--muted)}.ingredient-name{display:flex;align-items:center;gap:10px}.ingredient-check{width:20px;height:20px;min-width:20px;padding:0;cursor:pointer;accent-color:var(--accent)}.ingredient-row.checked td{opacity:.45}.ingredient-row.checked .ingredient-text,.ingredient-row.checked td.number{text-decoration:line-through}.ingredient-row.checked .ingredient-check{opacity:1}.valid{color:var(--green)}.invalid{color:var(--red)}#splitStatus{margin-top:10px;font-size:.9rem;font-weight:600}.recipe-steps{padding-left:24px;line-height:1.7}.install-note{font-size:.9rem;color:var(--muted)}
+        @media(max-width:650px){body{padding:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}.input-grid,.percentage-grid,.summary{grid-template-columns:1fr}.card{padding:16px}.button-row button:not(.step-button){flex:1 1 130px}th,td{padding:10px 4px}}
+  
+.poolish-stage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.stage-box{background:var(--output-background);border:1px solid var(--border);border-radius:10px;padding:14px}.stage-box h3{margin:0 0 10px}.stage-row{display:flex;justify-content:space-between;gap:16px;padding:6px 0;border-bottom:1px solid var(--border)}.stage-row:last-child{border-bottom:0}.stage-value{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}@media(max-width:650px){.poolish-stage-grid{grid-template-columns:1fr}}
+  
+/* Consistent ingredient cards across every recipe. */
+.stage-row{align-items:center;min-width:0}
+.stage-row > div:first-child{min-width:0}
+.stage-row .ingredient-name{flex-wrap:wrap;gap:6px}
+.ingredient-percentage{font-size:.9em;color:var(--muted);white-space:nowrap}
+.ingredient-row.checked .stage-value,.ingredient-row.checked .ingredient-percentage{text-decoration:line-through}
+.ingredient-row.checked .stage-value{opacity:.55}
+.stage-row .subingredient{padding-left:0}
+  
+.ingredient-text{display:inline!important}.ingredient-percentage{display:inline!important;white-space:nowrap}.stage-row .ingredient-name{flex-wrap:nowrap}.ingredient-row.checked .ingredient-text{text-decoration:line-through}
+  </style>
+ </head>
+ <body>
+  <div class="container">
+   <h1>
+    Dough Calculator
+   </h1>
+   <p class="subtitle">
+    Choose a recipe and portion size, or adjust any value.
+   </p>
+   <div class="card">
+    <h2>
+     Recipe
+    </h2>
+    <h3>
+     Pizza
+    </h3>
+    <div class="button-row" id="pizzaRecipeButtons">
+    </div>
+    <h3>
+     Bread and Rolls
+    </h3>
+    <div class="button-row" id="rollRecipeButtons">
+    </div>
+    <p class="subtitle" id="recipeDescription" style="margin:14px 0 0">
     </p>
-
-
-    <!-- =========================================================
-         DOUGH SIZE
-         ========================================================= -->
-
-    <div class="card">
-
-        <h2>Dough Size</h2>
-
-        <div class="field">
-
-            <label>Pizza Size</label>
-
-            <div class="button-row">
-
-                <button
-                    type="button"
-                    class="primary"
-                    id="size16Button"
-                >
-                    16" Pizza
-                </button>
-
-                <button
-                    type="button"
-                    class="secondary"
-                    id="size12Button"
-                >
-                    12" Pizza
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <div class="input-grid" style="margin-top: 16px;">
-
-            <div class="field">
-
-                <label for="ballCount">
-                    Number of Dough Balls
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="ballCount"
-                        data-direction="-1"
-                        aria-label="Decrease number of dough balls"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="ballCount"
-                        type="number"
-                        min="1"
-                        max="100"
-                        step="1"
-                        value="1"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="ballCount"
-                        data-direction="1"
-                        aria-label="Increase number of dough balls"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-                <small>
-                    One dough ball per pizza
-                </small>
-
-            </div>
-
-
-            <div class="field">
-
-                <label for="ballWeight">
-                    Dough Ball Weight (g)
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="ballWeight"
-                        data-direction="-1"
-                        aria-label="Decrease dough ball weight"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="ballWeight"
-                        type="number"
-                        min="1"
-                        max="5000"
-                        step="1"
-                        value="470"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="ballWeight"
-                        data-direction="1"
-                        aria-label="Increase dough ball weight"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-                <small id="pizzaSizeDescription">
-                    16" default: 470 g
-                </small>
-
-            </div>
-
-        </div>
-
+    <div class="notice hidden" id="recipeWarning">
     </div>
-
-
-    <!-- =========================================================
-         RECIPE TYPE
-         ========================================================= -->
-
-    <div class="card">
-
-        <h2>Recipe Type</h2>
-
-        <div class="button-row">
-
-            <button
-                type="button"
-                class="primary"
-                id="type1Button"
-            >
-                Type 1
-            </button>
-
-            <button
-                type="button"
-                class="secondary"
-                id="type2Button"
-            >
-                Type 2
-            </button>
-
-        </div>
-
-        <p
-            id="recipeTypeDescription"
-            class="subtitle"
-            style="margin: 12px 0 0;"
-        >
-            Type 1: Original recipe
-        </p>
-
+   </div>
+   <div class="card">
+    <h2 id="portionHeading">
+     Pizza Size and Quantity
+    </h2>
+    <div class="field" id="pizzaSizeSection">
+     <label>
+      Pizza Size
+     </label>
+     <div class="button-row" id="sizeButtons">
+     </div>
     </div>
-
-
-    <!-- =========================================================
-         BAKER'S PERCENTAGES
-         ========================================================= -->
-
-    <div class="card">
-
-        <h2>Baker's Percentages</h2>
-
-        <p class="subtitle">
-            Percentages are relative to total flour weight.
-        </p>
-
-        <div class="percentage-grid">
-
-
-            <div class="field">
-
-                <label for="waterPct">
-                    Water %
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="waterPct"
-                        data-direction="-1"
-                        aria-label="Decrease water percentage"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="waterPct"
-                        type="number"
-                        min="0"
-                        max="200"
-                        step="0.1"
-                        value="62"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="waterPct"
-                        data-direction="1"
-                        aria-label="Increase water percentage"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="field">
-
-                <label for="saltPct">
-                    Salt %
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="saltPct"
-                        data-direction="-1"
-                        aria-label="Decrease salt percentage"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="saltPct"
-                        type="number"
-                        min="0"
-                        max="20"
-                        step="0.1"
-                        value="2.5"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="saltPct"
-                        data-direction="1"
-                        aria-label="Increase salt percentage"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="field">
-
-                <label for="sugarPct">
-                    Sugar %
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="sugarPct"
-                        data-direction="-1"
-                        aria-label="Decrease sugar percentage"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="sugarPct"
-                        type="number"
-                        min="0"
-                        max="50"
-                        step="0.1"
-                        value="1.5"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="sugarPct"
-                        data-direction="1"
-                        aria-label="Increase sugar percentage"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="field">
-
-                <label for="oilPct">
-                    Olive Oil %
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="oilPct"
-                        data-direction="-1"
-                        aria-label="Decrease oil percentage"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="oilPct"
-                        type="number"
-                        min="0"
-                        max="50"
-                        step="0.1"
-                        value="2"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="oilPct"
-                        data-direction="1"
-                        aria-label="Increase oil percentage"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="field">
-
-                <label for="yeastPct">
-                    Yeast %
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="yeastPct"
-                        data-direction="-1"
-                        aria-label="Decrease yeast percentage"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="yeastPct"
-                        type="number"
-                        min="0"
-                        max="10"
-                        step="0.01"
-                        value="0.06"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="yeastPct"
-                        data-direction="1"
-                        aria-label="Increase yeast percentage"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-		<div class="button-row">
-
-			<button
-				type="button"
-				class="secondary"
-				id="coldYeastButton"
-			>
-				Yeast 0.06%
-			</button>
-
-			<button
-				type="button"
-				class="secondary"
-				id="warmYeastButton"
-			>
-				Yeast 0.03%
-			</button>
-
-		</div>
-
-		<p
-			class="subtitle"
-			style="margin-top: 12px; margin-bottom: 0;"
-		>
-			<strong>Yeast Note:</strong>
-			If using a 100% room-temperature fermentation in warmer ambient
-			temperatures, such as during summer, use 0.03% yeast.
-		</p>
-
+    <div class="input-grid" style="margin-top:16px">
+     <div class="field">
+      <label for="portionCount" id="portionCountLabel">
+       Number of Pizzas
+      </label>
+      <div class="number-control">
+       <button class="step-button" data-direction="-1" data-target="portionCount" type="button">
+        −
+       </button>
+       <input id="portionCount" max="100" min="1" step="1" type="number" value="4"/>
+       <button class="step-button" data-direction="1" data-target="portionCount" type="button">
+        +
+       </button>
+      </div>
+      <small id="portionCountNote">
+       One dough ball per pizza
+      </small>
+     </div>
+     <div class="field">
+      <label for="portionWeight" id="portionWeightLabel">
+       Dough Ball Weight (g)
+      </label>
+      <div class="number-control">
+       <button class="step-button" data-direction="-1" data-target="portionWeight" type="button">
+        −
+       </button>
+       <input id="portionWeight" max="5000" min="1" step="1" type="number" value="470"/>
+       <button class="step-button" data-direction="1" data-target="portionWeight" type="button">
+        +
+       </button>
+      </div>
+      <small id="portionWeightDescription">
+       16" default: 470 g
+      </small>
+     </div>
     </div>
-
-
-    <!-- =========================================================
-         FLOUR BLEND
-         ========================================================= -->
-
-    <div class="card">
-
-        <h2>Flour Blend</h2>
-
-        <div class="input-grid">
-
-
-            <div class="field">
-
-                <label for="breadFlourPct">
-                    Bread Flour %
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="breadFlourPct"
-                        data-direction="-1"
-                        aria-label="Decrease bread flour percentage"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="breadFlourPct"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value="70"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="breadFlourPct"
-                        data-direction="1"
-                        aria-label="Increase bread flour percentage"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="field">
-
-                <label for="apFlourPct">
-                    All-Purpose Flour %
-                </label>
-
-                <div class="number-control">
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="apFlourPct"
-                        data-direction="-1"
-                        aria-label="Decrease all-purpose flour percentage"
-                    >
-                        −
-                    </button>
-
-                    <input
-                        id="apFlourPct"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value="30"
-                    >
-
-                    <button
-                        type="button"
-                        class="step-button"
-                        data-target="apFlourPct"
-                        data-direction="1"
-                        aria-label="Increase all-purpose flour percentage"
-                    >
-                        +
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div id="splitStatus"></div>
-
+   </div>
+   <div class="card">
+    <h2>
+     Baker's Percentages
+    </h2>
+    <p class="subtitle">
+     Percentages are relative to total flour weight.
+    </p>
+    <div class="percentage-grid" id="percentageFields">
     </div>
-
-
-    <!-- =========================================================
-         SUMMARY
-         ========================================================= -->
-
-    <div class="card">
-
-        <h2>Dough Summary</h2>
-
-        <div class="summary">
-
-            <div class="summary-box">
-                <div class="summary-label">
-                    Total Dough
-                </div>
-
-                <div
-                    class="summary-value"
-                    id="totalDough"
-                >
-                    0 g
-                </div>
-            </div>
-
-
-            <div class="summary-box">
-                <div class="summary-label">
-                    Total Flour
-                </div>
-
-                <div
-                    class="summary-value"
-                    id="totalFlour"
-                >
-                    0 g
-                </div>
-            </div>
-
-
-            <div class="summary-box">
-                <div class="summary-label">
-                    Hydration
-                </div>
-
-                <div
-                    class="summary-value"
-                    id="hydration"
-                >
-                    62%
-                </div>
-            </div>
-
-        </div>
-
+    <div class="button-row" id="yeastPresetButtons">
+     <button class="secondary" id="standardYeastButton" type="button">
+      Yeast 0.06%
+     </button>
+     <button class="secondary" id="warmYeastButton" type="button">
+      Yeast 0.03%
+     </button>
     </div>
-
-
-    <!-- =========================================================
-         INGREDIENT RESULTS
-         ========================================================= -->
-
-    <div class="card">
-
-        <h2>Ingredient Weights</h2>
-
-        <table>
-
-            <thead>
-
-                <tr>
-                    <th>Ingredient</th>
-                    <th class="number">Baker's %</th>
-                    <th class="number">Weight</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                <tr>
-                    <td>Total Flour</td>
-                    <td class="number">100%</td>
-                    <td class="number" id="flourWeight"></td>
-                </tr>
-
-                <tr>
-                    <td class="subingredient">
-                        Bread Flour
-                    </td>
-                    <td class="number" id="breadPercentOutput"></td>
-                    <td class="number" id="breadWeight"></td>
-                </tr>
-
-                <tr>
-                    <td class="subingredient">
-                        All-Purpose Flour
-                    </td>
-                    <td class="number" id="apPercentOutput"></td>
-                    <td class="number" id="apWeight"></td>
-                </tr>
-
-                <tr>
-                    <td>Water @ ~50°F</td>
-                    <td class="number" id="waterPercentOutput"></td>
-                    <td class="number" id="waterWeight"></td>
-                </tr>
-
-                <tr>
-                    <td>Salt</td>
-                    <td class="number" id="saltPercentOutput"></td>
-                    <td class="number" id="saltWeight"></td>
-                </tr>
-
-                <tr>
-                    <td>Sugar</td>
-                    <td class="number" id="sugarPercentOutput"></td>
-                    <td class="number" id="sugarWeight"></td>
-                </tr>
-
-                <tr>
-                    <td>Olive Oil</td>
-                    <td class="number" id="oilPercentOutput"></td>
-                    <td class="number" id="oilWeight"></td>
-                </tr>
-
-                <tr>
-                    <td>Yeast</td>
-                    <td class="number" id="yeastPercentOutput"></td>
-                    <td class="number" id="yeastWeight"></td>
-                </tr>
-
-            </tbody>
-
-        </table>
-
+    <p class="subtitle" id="yeastNote" style="margin:12px 0 0">
+     <strong>
+      Yeast Note:
+     </strong>
+     If using a 100% room-temperature fermentation in warmer ambient temperatures, such as during summer, use 0.03% yeast.
+    </p>
+   </div>
+   <div class="card" id="flourBlendCard">
+    <h2>
+     Flour Blend
+    </h2>
+    <div class="input-grid" id="flourFields">
     </div>
-
-
-    <!-- =========================================================
-         CONTROLS
-         ========================================================= -->
-
-    <div class="card">
-
-        <div class="button-row">
-
-            <button
-                type="button"
-                class="primary"
-                id="resetButton"
-            >
-                Reset to Original Recipe
-            </button>
-
-        </div>
-
-        <p class="install-note">
-            Your latest settings are saved on this device.
-        </p>
-
+    <div id="splitStatus">
     </div>
-
-
-    <!-- =========================================================
-         RECIPE NOTES
-         ========================================================= -->
-
-    <div class="card">
-
-        <h2>Recipe Notes</h2>
-
-        <ol class="recipe-steps">
-
-            <li>
-                Combine flour, yeast, and sugar in stand mixer or by hand.
-            </li>
-
-            <li>
-                Add water on low until incorporated. Add ice to chill the
-                water, remove the ice, and weigh the needed amount.
-            </li>
-
-            <li>
-                Add salt and mix until combined.
-            </li>
-
-            <li>
-                Add oil and mix until smooth.
-            </li>
-
-            <li>
-                Perform stretch and folds until the dough passes the
-                windowpane test.
-            </li>
-
-            <li>
-                Bulk ferment.
-
-                <ol>
-
-                    <li>
-                        Type 1
-
-                        <ol>
-                            <li>
-                                Ferment at room temperature for 12-18 hours.
-                            </li>
-
-                            <li>
-                                Portion dough into individual oiled containers.
-                            </li>
-
-                            <li>
-                                Let rest at room temperature for 1-5 hours
-                                before using.
-                            </li>
-                        </ol>
-                    </li>
-
-                    <li>
-                        Type 2
-
-                        <ol>
-                            <li>
-                                Ferment at room temperature for 12 hours.
-                            </li>
-
-                            <li>
-                                Refrigerate for at least 12 additional hours,
-                                up to 48 hours.
-                            </li>
-
-                            <li>
-                                Portion dough into individual oiled containers.
-                            </li>
-
-                            <li>
-                                Let rest at room temperature for 4-5 hours
-                                before using.
-                            </li>
-                        </ol>
-                    </li>
-
-                </ol>
-
-            </li>
-
-        </ol>
-
+   </div>
+   <div class="card">
+    <h2>
+     Dough Summary
+    </h2>
+    <div class="summary">
+     <div class="summary-box">
+      <div class="summary-label">
+       Total Dough
+      </div>
+      <div class="summary-value" id="totalDough">
+       0 g
+      </div>
+     </div>
+     <div class="summary-box">
+      <div class="summary-label">
+       Total Flour
+      </div>
+      <div class="summary-value" id="totalFlour">
+       0 g
+      </div>
+     </div>
+     <div class="summary-box">
+      <div class="summary-label">
+       Hydration
+      </div>
+      <div class="summary-value" id="hydration">
+       0%
+      </div>
+     </div>
     </div>
-
-</div>
-
-
-<script>
-"use strict";
-
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const elements = {
-        ballCount:
-            document.getElementById("ballCount"),
-
-        ballWeight:
-            document.getElementById("ballWeight"),
-
-        size16Button:
-            document.getElementById("size16Button"),
-
-        size12Button:
-            document.getElementById("size12Button"),
-
-        pizzaSizeDescription:
-            document.getElementById("pizzaSizeDescription"),
-
-        waterPct:
-            document.getElementById("waterPct"),
-
-        saltPct:
-            document.getElementById("saltPct"),
-
-        sugarPct:
-            document.getElementById("sugarPct"),
-
-        oilPct:
-            document.getElementById("oilPct"),
-
-        yeastPct:
-            document.getElementById("yeastPct"),
-
-        breadFlourPct:
-            document.getElementById("breadFlourPct"),
-
-        apFlourPct:
-            document.getElementById("apFlourPct"),
-
-        totalDough:
-            document.getElementById("totalDough"),
-
-        totalFlour:
-            document.getElementById("totalFlour"),
-
-        hydration:
-            document.getElementById("hydration"),
-
-        flourWeight:
-            document.getElementById("flourWeight"),
-
-        breadWeight:
-            document.getElementById("breadWeight"),
-
-        apWeight:
-            document.getElementById("apWeight"),
-
-        waterWeight:
-            document.getElementById("waterWeight"),
-
-        saltWeight:
-            document.getElementById("saltWeight"),
-
-        sugarWeight:
-            document.getElementById("sugarWeight"),
-
-        oilWeight:
-            document.getElementById("oilWeight"),
-
-        yeastWeight:
-            document.getElementById("yeastWeight"),
-
-        breadPercentOutput:
-            document.getElementById("breadPercentOutput"),
-
-        apPercentOutput:
-            document.getElementById("apPercentOutput"),
-
-        waterPercentOutput:
-            document.getElementById("waterPercentOutput"),
-
-        saltPercentOutput:
-            document.getElementById("saltPercentOutput"),
-
-        sugarPercentOutput:
-            document.getElementById("sugarPercentOutput"),
-
-        oilPercentOutput:
-            document.getElementById("oilPercentOutput"),
-
-        yeastPercentOutput:
-            document.getElementById("yeastPercentOutput"),
-
-        splitStatus:
-            document.getElementById("splitStatus"),
-
-        coldYeastButton:
-            document.getElementById("coldYeastButton"),
-
-        warmYeastButton:
-            document.getElementById("warmYeastButton"),
-
-        type1Button:
-            document.getElementById("type1Button"),
-
-        type2Button:
-            document.getElementById("type2Button"),
-
-        recipeTypeDescription:
-            document.getElementById("recipeTypeDescription"),
-
-        resetButton:
-            document.getElementById("resetButton")
-    };
-
-
-    const defaults = {
-        ballCount: 1,
-        ballWeight: 470,
-        waterPct: 62,
-        saltPct: 2.5,
-        sugarPct: 1.5,
-        oilPct: 2,
-        yeastPct: 0.06,
-        breadFlourPct: 70,
-        apFlourPct: 30
-    };
-
-
-    const type1Recipe = {
-        waterPct: 62,
-        saltPct: 2.5,
-        sugarPct: 1.5,
-        oilPct: 2,
-        yeastPct: 0.06,
-        breadFlourPct: 70,
-        apFlourPct: 30
-    };
-
-
-    const type2Recipe = {
-        waterPct: 65,
-        saltPct: 2.5,
-        sugarPct: 1.9,
-        oilPct: 1.9,
-        yeastPct: 0.06,
-        breadFlourPct: 70,
-        apFlourPct: 30
-    };
-
-
-    const pizzaSizes = {
-        size16: {
-            name: '16"',
-            weight: 470
+   </div>
+   <div class="card hidden" id="poolishControls">
+    <h2>
+     Poolish Settings
+    </h2>
+    <p class="install-note">
+     Poolish hydration and yeast percentage use poolish flour as 100%. Poolish percentage is the complete poolish weight divided by total finished dough weight. The flour allocation is calculated automatically. Batch-size changes scale the poolish with the recipe.
+    </p>
+    <div class="input-grid" id="poolishControlFields">
+    </div>
+    <p aria-live="polite" class="invalid" id="poolishValidation" role="status">
+    </p>
+   </div>
+   <div class="card hidden" id="poolishBreakdownCard">
+    <h2>
+     Poolish and Final Dough Ingredients
+    </h2>
+    <p class="subtitle">
+     Weigh the poolish first. After it matures, add the complete poolish to the final dough.
+    </p>
+    <div class="summary">
+     <div class="summary-box">
+      <div class="summary-label">
+       Poolish Weight
+      </div>
+      <div class="summary-value" id="poolishTotalWeight">
+       0
+      </div>
+     </div>
+     <div class="summary-box">
+      <div class="summary-label">
+       Poolish Hydration
+      </div>
+      <div class="summary-value" id="poolishHydration">
+       0
+      </div>
+     </div>
+     <div class="summary-box">
+      <div class="summary-label">
+       Poolish Yeast
+      </div>
+      <div class="summary-value" id="poolishYeastPercent">
+       0
+      </div>
+     </div>
+    </div>
+    <p class="install-note" id="prefermentedFlourMetric">
+     Prefermented flour: 0%
+    </p>
+    <div class="poolish-stage-grid">
+     <div class="stage-box">
+      <h3>
+       Poolish
+      </h3>
+      <p class="install-note">
+       Percentages use poolish flour as 100%.
+      </p>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark bread flour complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Bread Flour
+        </span>
+       </div>
+       <span class="stage-value" id="poolishFlour">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark water complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Water
+        </span>
+       </div>
+       <span class="stage-value" id="poolishWater">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark instant dry yeast complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Instant Dry Yeast
+        </span>
+       </div>
+       <span class="stage-value" id="poolishYeast">
+        0 g
+       </span>
+      </div>
+     </div>
+     <div class="stage-box">
+      <h3>
+       Final Dough Additions
+      </h3>
+      <p class="install-note">
+       Percentages use total recipe flour as 100%; these are final additions only.
+      </p>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark bread flour complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Bread Flour
+        </span>
+       </div>
+       <span class="stage-value" id="finalFlour">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark cold water complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Cold Water
+        </span>
+       </div>
+       <span class="stage-value" id="finalWater">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark instant dry yeast complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Instant Dry Yeast
+        </span>
+       </div>
+       <span class="stage-value" id="finalYeast">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark diastatic malt powder complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Diastatic Malt Powder
+        </span>
+       </div>
+       <span class="stage-value" id="finalMalt">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark salt complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Salt
+        </span>
+       </div>
+       <span class="stage-value" id="finalSalt">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark olive oil complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Olive Oil
+        </span>
+       </div>
+       <span class="stage-value" id="finalOil">
+        0 g
+       </span>
+      </div>
+      <div class="stage-row ingredient-row">
+       <div class="ingredient-name">
+        <input aria-label="Mark mature poolish complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Mature Poolish
+        </span>
+       </div>
+       <span class="stage-value" id="finalPoolish">
+        0 g
+       </span>
+      </div>
+     </div>
+    </div>
+    <div class="stage-box" style="margin-top:14px">
+     <h3>
+      Finished Dough Totals
+     </h3>
+     <div class="stage-row">
+      <span>
+       Total Flour
+      </span>
+      <span class="stage-value" id="finishedFlour">
+       0 g
+      </span>
+     </div>
+     <div class="stage-row">
+      <span>
+       Total Water
+      </span>
+      <span class="stage-value" id="finishedWater">
+       0 g
+      </span>
+     </div>
+     <div class="stage-row">
+      <span>
+       Total Yeast
+      </span>
+      <span class="stage-value" id="finishedYeast">
+       0 g
+      </span>
+     </div>
+     <div class="stage-row">
+      <span>
+       Diastatic Malt Powder
+      </span>
+      <span class="stage-value" id="finishedMalt">
+       0 g
+      </span>
+     </div>
+     <div class="stage-row">
+      <span>
+       Salt
+      </span>
+      <span class="stage-value" id="finishedSalt">
+       0 g
+      </span>
+     </div>
+     <div class="stage-row">
+      <span>
+       Olive Oil
+      </span>
+      <span class="stage-value" id="finishedOil">
+       0 g
+      </span>
+     </div>
+     <div class="stage-row">
+      <span>
+       Total Dough
+      </span>
+      <span class="stage-value" id="finishedDough">
+       0 g
+      </span>
+     </div>
+    </div>
+   </div>
+   <div class="card" id="ingredientWeightsCard">
+    <h2>
+     Ingredient Weights
+    </h2>
+    <div class="stage-box">
+     <div class="stage-row" id="totalFlourRow">
+      <div>
+       Total Flour
+       <span aria-hidden="true" class="hidden">
+        100%
+       </span>
+       <span class="ingredient-percentage">
+       </span>
+      </div>
+      <span class="stage-value" id="flourWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row stage-row" id="breadFlourRow">
+      <div class="subingredient" id="breadFlourLabel">
+       <div class="ingredient-name">
+        <input aria-label="Mark bread flour complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Bread Flour
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="breadPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="breadWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row stage-row" id="apFlourRow">
+      <div class="subingredient">
+       <div class="ingredient-name">
+        <input aria-label="Mark all-purpose flour complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         All-Purpose Flour
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="apPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="apWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row stage-row">
+      <div>
+       <div class="ingredient-name">
+        <input aria-label="Mark water complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text" id="waterIngredientLabel">
+         Water
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="waterPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="waterWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row stage-row">
+      <div>
+       <div class="ingredient-name">
+        <input aria-label="Mark salt complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Salt
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="saltPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="saltWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row stage-row">
+      <div>
+       <div class="ingredient-name">
+        <input aria-label="Mark sugar complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Sugar
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="sugarPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="sugarWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row stage-row">
+      <div>
+       <div class="ingredient-name">
+        <input aria-label="Mark olive oil complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Olive Oil
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="oilPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="oilWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row stage-row">
+      <div>
+       <div class="ingredient-name">
+        <input aria-label="Mark yeast complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text">
+         Yeast
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="yeastPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="yeastWeight">
+       0 g
+      </span>
+     </div>
+     <div class="ingredient-row hidden stage-row" id="maltRow">
+      <div>
+       <div class="ingredient-name">
+        <input aria-label="Mark diastatic malt powder complete" class="ingredient-check" type="checkbox"/>
+        <span class="ingredient-text" id="maltIngredientLabel">
+         Diastatic Malt Powder
+         <span class="ingredient-percentage">
+         </span>
+        </span>
+       </div>
+       <span aria-hidden="true" class="hidden" id="maltPercentOutput">
+        0%
+       </span>
+      </div>
+      <span class="stage-value" id="maltWeight">
+       0 g
+      </span>
+     </div>
+    </div>
+   </div>
+   <div class="card">
+    <div class="button-row">
+     <button class="primary" id="resetButton" type="button">
+      Reset Selected Recipe
+     </button>
+    </div>
+    <p class="install-note">
+     Each recipe's custom settings are saved separately on this device.
+    </p>
+   </div>
+   <div class="card">
+    <h2 id="recipeNotesHeading">
+     Recipe Notes
+    </h2>
+    <ol class="recipe-steps" id="recipeNotes">
+    </ol>
+   </div>
+  </div>
+  <script>
+   "use strict";
+document.addEventListener("DOMContentLoaded",function(){
+const recipes = {
+    "type1": {
+        "name": "Room-Temperature Ferment",
+        "category": "pizza",
+        "configured": true,
+        "defaultPortionCount": 4,
+        "waterTemp": "50°F",
+        "description": "Room-temperature ferment only pizza dough.",
+        "portionNameSingular": "Pizza",
+        "portionNamePlural": "Pizzas",
+        "portionWeightLabel": "Dough Ball Weight (g)",
+        "defaultPortionWeight": 470,
+        "sizes": [
+            {
+                "name": "16\" Pizza",
+                "shortName": "16\"",
+                "weight": 470
+            },
+            {
+                "name": "12\" Pizza",
+                "shortName": "12\"",
+                "weight": 265
+            }
+        ],
+        "formula": {
+            "waterPct": 62,
+            "saltPct": 2.5,
+            "sugarPct": 1.5,
+            "oilPct": 2,
+            "yeastPct": 0.06,
+            "breadFlourPct": 70,
+            "apFlourPct": 30
         },
+        "notes": [
+    {
+        "title": "Combine the dry ingredients.",
+        "details": [
+            "Add the bread flour, all-purpose flour, sugar, and yeast to the mixing bowl. Mix briefly to distribute the ingredients evenly."
+        ]
+    },
+    {
+        "title": "Add the cold water.",
+        "details": [
+            "Chill the water with ice if necessary. Remove the ice, weigh the required amount of water, and add it to the dry ingredients. Mix on low speed until no dry flour remains."
+        ]
+    },
+    {
+        "title": "Add the salt.",
+        "details": [
+            "Continue mixing until the salt is fully incorporated."
+        ]
+    },
+    {
+        "title": "Add the olive oil.",
+        "details": [
+            "Mix until the oil is incorporated and the dough becomes smooth and cohesive."
+        ]
+    },
+    {
+        "title": "Rest for 30 minutes.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Lightly oil a clean container, place the dough inside, cover, and let it rest for "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Perform four stretch-and-folds.",
+        "details": [
+            "Wet your hands to prevent sticking. Pull one side of the dough up and fold it completely across the top. Rotate the container and repeat until you have completed four folds."
+        ]
+    },
+    {
+        "title": "Continue resting and developing the dough.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Cover the dough again and allow it to rest for another "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            },
+            {
+                "parts": [
+                    {
+                        "text": "Repeat stretch-and-folds every "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": " until the dough develops good strength and can be stretched thin enough to pass the windowpane test without tearing easily."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Room-temperature bulk fermentation.",
+        "details": [
+            "Transfer the dough to an oiled covered container with enough room for the dough to expand.",
+            {
+                "parts": [
+                    {
+                        "text": "Ferment at room temperature for approximately "
+                    },
+                    {
+                        "text": "12-18 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Divide and ball the dough.",
+        "details": [
+            "Remove the dough from the refrigerator and turn the dough onto a clean surface and divide it into the selected number of portions.",
+            "Pull each portion into itself against the counter to create surface tension. Form a tight dough ball and pinch the seam closed.",
+            "Transfer to lightly oiled containers and cover."
+        ]
+    },
+    {
+        "title": "Final-proof at room temperature for approximately 1-5 hours.",
+        "details": [
+            "Allow the dough to warm and relax before stretching."
+        ]
+    },
+    {
+        "title": "Top and bake."
+    }
+]
+    },
+    "type2": {
+        "name": "Room-Temperature and Cold Ferment",
+        "category": "pizza",
+        "configured": true,
+        "defaultPortionCount": 4,
+        "waterTemp": "50°F",
+        "description": "Room-temperature and refrigerated ferment pizza dough.",
+        "portionNameSingular": "Pizza",
+        "portionNamePlural": "Pizzas",
+        "portionWeightLabel": "Dough Ball Weight (g)",
+        "defaultPortionWeight": 470,
+        "sizes": [
+            {
+                "name": "16\" Pizza",
+                "shortName": "16\"",
+                "weight": 470
+            },
+            {
+                "name": "12\" Pizza",
+                "shortName": "12\"",
+                "weight": 265
+            }
+        ],
+        "formula": {
+            "waterPct": 65,
+            "saltPct": 2.5,
+            "sugarPct": 1.9,
+            "oilPct": 1.9,
+            "yeastPct": 0.06,
+            "breadFlourPct": 70,
+            "apFlourPct": 30
+        },
+        "notes": [
+    {
+        "title": "Combine the dry ingredients.",
+        "details": [
+            "Add the bread flour, all-purpose flour, sugar, and yeast to the mixing bowl. Mix briefly to distribute the ingredients evenly."
+        ]
+    },
+    {
+        "title": "Add the cold water.",
+        "details": [
+            "Chill the water with ice if necessary. Remove the ice, weigh the required amount of water, and add it to the dry ingredients. Mix on low speed until no dry flour remains."
+        ]
+    },
+    {
+        "title": "Add the salt.",
+        "details": [
+            "Continue mixing until the salt is fully incorporated."
+        ]
+    },
+    {
+        "title": "Add the olive oil.",
+        "details": [
+            "Mix until the oil is incorporated and the dough becomes smooth and cohesive."
+        ]
+    },
+    {
+        "title": "Rest for 30 minutes.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Lightly oil a clean container, place the dough inside, cover, and let it rest for "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Perform four stretch-and-folds.",
+        "details": [
+            "Wet your hands to prevent sticking. Pull one side of the dough up and fold it completely across the top. Rotate the container and repeat until you have completed four folds."
+        ]
+    },
+    {
+        "title": "Continue resting and developing the dough.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Cover the dough again and allow it to rest for another "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            },
+            {
+                "parts": [
+                    {
+                        "text": "Repeat stretch-and-folds every "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": " until the dough develops good strength and can be stretched thin enough to pass the windowpane test without tearing easily."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Room-temperature bulk fermentation.",
+        "details": [
+            "Transfer the dough to an oiled covered container with enough room for the dough to expand.",
+            {
+                "parts": [
+                    {
+                        "text": "Ferment at room temperature for approximately "
+                    },
+                    {
+                        "text": "12 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Cold-ferment the dough.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Place the covered bulk dough in the refrigerator for at least another "
+                    },
+                    {
+                        "text": "12 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": "  and up to approximately "
+                    },
+                    {
+                        "text": "48 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Divide and ball the dough.",
+        "details": [
+            "Remove the dough from the refrigerator and turn the dough onto a clean surface and divide it into the selected number of portions.",
+            "Pull each portion into itself against the counter to create surface tension. Form a tight dough ball and pinch the seam closed.",
+            "Transfer to lightly oiled containers and cover."
+        ]
+    },
+    {
+        "title": "Final-proof at room temperature for approximately 4-5 hours.",
+        "details": [
+            "Allow the dough to warm and relax before stretching."
+        ]
+    },
+    {
+        "title": "Top and bake."
+    }
+]
+    },
+    "coldFerment": {
+        "name": "Cold Ferment",
+        "category": "pizza",
+        "configured": true,
+        "defaultPortionCount": 4,
+        "waterTemp": "50°F",
+        "description": "Cold-ferment-only pizza dough.",
+        "portionNameSingular": "Pizza",
+        "portionNamePlural": "Pizzas",
+        "portionWeightLabel": "Dough Ball Weight (g)",
+        "defaultPortionWeight": 470,
+        "sizes": [
+            {
+                "name": "16\" Pizza",
+                "shortName": "16\"",
+                "weight": 470
+            },
+            {
+                "name": "12\" Pizza",
+                "shortName": "12\"",
+                "weight": 265
+            }
+        ],
+        "formula": {
+            "waterPct": 65,
+            "saltPct": 2.5,
+            "sugarPct": 2,
+            "oilPct": 2,
+            "yeastPct": 0.3,
+            "breadFlourPct": 70,
+            "apFlourPct": 30
+        },
+        "notes": [
+    {
+        "title": "Combine the dry ingredients.",
+        "details": [
+            "Add the bread flour, all-purpose flour, sugar, and yeast to the mixing bowl. Mix briefly to distribute the ingredients evenly."
+        ]
+    },
+    {
+        "title": "Add the cold water.",
+        "details": [
+            "Chill the water with ice if necessary. Remove the ice, weigh the required amount of water, and add it to the dry ingredients. Mix on low speed until no dry flour remains."
+        ]
+    },
+    {
+        "title": "Add the salt.",
+        "details": [
+            "Continue mixing until the salt is fully incorporated."
+        ]
+    },
+    {
+        "title": "Add the olive oil.",
+        "details": [
+            "Mix until the oil is incorporated and the dough becomes smooth and cohesive."
+        ]
+    },
+    {
+        "title": "Rest for 30 minutes.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Lightly oil a clean container, place the dough inside, cover, and let it rest for "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Perform four stretch-and-folds.",
+        "details": [
+            "Wet your hands to prevent sticking. Pull one side of the dough up and fold it completely across the top. Rotate the container and repeat until you have completed four folds."
+        ]
+    },
+    {
+        "title": "Continue resting and developing the dough.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Cover the dough again and allow it to rest for another "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            },
+            {
+                "parts": [
+                    {
+                        "text": "Repeat stretch-and-folds every "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": " until the dough develops good strength and can be stretched thin enough to pass the windowpane test without tearing easily."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Cold-ferment the dough.",
+        "details": [
+            "Transfer the dough to an oiled covered container with enough room for the dough to expand.",
+            {
+                "parts": [
+                    {
+                        "text": "Place the covered bulk dough in the refrigerator for at least "
+                    },
+                    {
+                        "text": "48 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": " and up to approximately "
+                    },
+                    {
+                        "text": "72 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Divide and ball the dough.",
+        "details": [
+            "Remove the dough from the refrigerator and turn the dough onto a clean surface and divide it into the selected number of portions.",
+            "Pull each portion into itself against the counter to create surface tension. Form a tight dough ball and pinch the seam closed.",
+            "Transfer to lightly oiled containers and cover."
+        ]
+    },
+    {
+        "title": "Final-proof at room temperature for approximately 4-5 hours.",
+        "details": [
+            "Remove the dough balls from the refrigerator before use. Allow the dough to warm and relax before stretching."
+        ]
+    },
+    {
+        "title": "Top and bake."
+    }
+]
+    },
 
-        size12: {
-            name: '12"',
-            weight: 265
-        }
+      poolishPizza: {
+          name: "Poolish Pizza",
+          category: "pizza",
+          configured: true,
+          defaultPortionCount: 4,
+          waterTemp: "50°F",
+          description: "Pizza dough made with a 12-hour room-temperature poolish followed by a 24-72 hour cold ferment.",
+          portionNameSingular: "Pizza",
+          portionNamePlural: "Pizzas",
+          portionWeightLabel: "Dough Ball Weight (g)",
+          defaultPortionWeight: 470,
+          sizes: [
+              { name: '16" Pizza', shortName: '16"', weight: 470 },
+              { name: '12" Pizza', shortName: '12"', weight: 265 }
+          ],
+          formula: {
+              waterPct: 65,
+              saltPct: 2.5,
+              sugarPct: 0,
+              oilPct: 1.5,
+              yeastPct: 0.067,
+              maltPct: 0.67,
+              breadFlourPct: 100,
+              apFlourPct: 0
+          },
+          // Poolish defaults: edit only these three settings.
+          poolish: {
+              percentOfTotalDough: 13.7,
+              hydrationPct: 100.0,
+              yeastPct: 0.24
+          },
+          notes: [
+    {
+        "title": "Prepare the poolish.",
+        "details": [
+            "Combine the poolish bread flour, water, and instant dry yeast using the weights shown in the Poolish section. Mix until no dry flour remains.",
+            {
+                "parts": [
+                    {
+                        "text": "Cover and ferment at room temperature for approximately "
+                    },
+                    {
+                        "text": "12 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            },
+            "The poolish should be expanded, aerated, and visibly active before making the final dough."
+        ]
+    },
+    {
+        "title": "Prepare the final-dough liquid.",
+        "details": [
+            "Chill the final-dough water with ice if necessary. Remove the ice, then weigh the required amount shown in Final Dough Additions.",
+            "Add the cold water to the mature poolish and mix until dispersed."
+        ]
+    },
+    {
+        "title": "Combine the dry ingredients.",
+        "details": [
+            "Add the final-dough bread flour, diastatic malt powder, and final-dough instant dry yeast to the mixing bowl. Mix briefly to distribute the ingredients evenly."
+        ]
+    },
+    {
+        "title": "Add the water and poolish.",
+        "details": [
+            "Add the cold water and poolish mixture. Mix on low speed until incorporated and no dry flour remains.",
+            "Use the stage-specific ingredient weights, not the finished-dough totals, so the poolish flour, water, and yeast are not added twice."
+        ]
+    },
+    {
+        "title": "Add the salt.",
+        "details": [
+            "Continue mixing until the salt is fully incorporated."
+        ]
+    },
+    {
+        "title": "Add the olive oil.",
+        "details": [
+            "Mix until the oil is incorporated and the dough becomes smooth and cohesive."
+        ]
+    },
+    {
+        "title": "Rest for 30 minutes.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Lightly oil a clean container, place the dough inside, cover, and let it rest for "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Perform four stretch-and-folds.",
+        "details": [
+            "Wet your hands to prevent sticking. Pull one side of the dough up and fold it completely across the top. Rotate the container and repeat until you have completed four folds."
+        ]
+    },
+    {
+        "title": "Continue resting and developing the dough.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Cover the dough again and allow it to rest for another "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            },
+            {
+                "parts": [
+                    {
+                        "text": "Repeat stretch-and-folds every "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": " until the dough develops good strength and can be stretched thin enough to pass the windowpane test without tearing easily."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Divide and ball the dough.",
+        "details": [
+            "Turn the dough onto a clean surface and divide it into the selected number of portions.",
+            "Pull each portion into itself against the counter to create surface tension. Form a tight dough ball and pinch the seam closed."
+        ]
+    },
+    {
+        "title": "Cold-ferment the dough balls.",
+        "details": [
+            "Transfer to lightly oiled containers and cover.",
+            {
+                "parts": [
+                    {
+                        "text": "Refrigerate the individual dough balls for approximately "
+                    },
+                    {
+                        "text": "24-72 hours",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Final-proof at room temperature for approximately 4-5 hours.",
+        "details": [
+            "Remove the dough balls from the refrigerator before use. Allow the dough to warm and relax before stretching."
+        ]
+    },
+    {
+        "title": "Top and bake."
+    }
+]
+      },
+    "grinderRoll": {
+        "name": "Grinder Roll",
+        "category": "roll",
+        "configured": true,
+        "defaultPortionCount": 2,
+        "waterTemp": "50°F",
+        "description": "Grinder roll dough. Each roll is about 280 g.",
+        "portionNameSingular": "Roll",
+        "portionNamePlural": "Rolls",
+        "portionWeightLabel": "Roll Weight (g)",
+        "defaultPortionWeight": 286,
+        "sizes": [],
+        "formula": {
+            "waterPct": 60,
+            "saltPct": 1,
+            "sugarPct": 2,
+            "oilPct": 5,
+            "yeastPct": 0.3,
+            "breadFlourPct": 100,
+            "apFlourPct": 0
+        },
+        "notes": [
+    {
+        "title": "Combine the dry ingredients.",
+        "details": [
+            "Add the bread flour, all-purpose flour, sugar, and yeast to the mixing bowl. Mix briefly to distribute the ingredients evenly."
+        ]
+    },
+    {
+        "title": "Add the cold water.",
+        "details": [
+            "Chill the water with ice if necessary. Remove the ice, weigh the required amount of water, and add it to the dry ingredients. Mix on low speed until no dry flour remains."
+        ]
+    },
+    {
+        "title": "Add the salt.",
+        "details": [
+            "Continue mixing until the salt is fully incorporated."
+        ]
+    },
+    {
+        "title": "Add the olive oil.",
+        "details": [
+            "Mix until the oil is incorporated and the dough becomes smooth and cohesive."
+        ]
+    },
+    {
+        "title": "Rest for 30 minutes.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Lightly oil a clean container, place the dough inside, cover, and let it rest for "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Perform four stretch-and-folds.",
+        "details": [
+            "Wet your hands to prevent sticking. Pull one side of the dough up and fold it completely across the top. Rotate the container and repeat until you have completed four folds."
+        ]
+    },
+    {
+        "title": "Continue resting and developing the dough.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Cover the dough again and allow it to rest for another "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            },
+            {
+                "parts": [
+                    {
+                        "text": "Repeat stretch-and-folds every "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": " until the dough develops good strength and can be stretched thin enough to pass the windowpane test without tearing easily."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Divide the dough.",
+        "details": [
+            "Turn the dough onto a clean surface and divide it into the selected number of portions. The default recipe makes 2 rolls."
+        ]
+    },
+    {
+        "title": "Shape the dough balls.",
+        "details": [
+            "Pull each portion into itself against the counter to create surface tension. Form a tight dough ball and pinch the seam closed."
+        ]
+    },
+    {
+        "title": "Cold-ferment for 2-3 days.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Lightly oil individual containers, place one dough ball in each container, cover, and refrigerate for "
+                    },
+                    {
+                        "text": "2-3 days",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Warm the dough before shaping.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "On baking day, remove the dough from the refrigerator and allow it to rest at room temperature for approximately "
+                    },
+                    {
+                        "text": "30 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Flatten into a rectangular oval.",
+        "details": [
+            "Lightly flour both sides of each dough ball. Gently flatten the dough into a rectangular-oval shape approximately 8-12 inches long."
+        ]
+    },
+    {
+        "title": "Make the first two folds.",
+        "details": [
+            "Fold the top portion of the dough approximately two-thirds of the way down and press the fold with your palm. Fold the bottom portion approximately two-thirds of the way up and press again."
+        ]
+    },
+    {
+        "title": "Close and seal the roll.",
+        "details": [
+            "Fold the dough from top to bottom to close the roll. Press the dough against the counter with your fingers or palm, then pinch the center seam tightly closed."
+        ]
+    },
+    {
+        "title": "Shape to approximately 12 inches.",
+        "details": [
+            "Gently roll each loaf until it is approximately 12 inches long. Shape the ends either rounded or pinched, depending on your preference."
+        ]
+    },
+    {
+        "title": "Apply the sesame seeds.",
+        "details": [
+            "Spread a generous layer of sesame seeds on a tray. Lightly dampen the smooth side of each loaf with a wet towel, then press the dampened side into the sesame seeds so they adhere."
+        ]
+    },
+    {
+        "title": "Proof for 1 hour.",
+        "details": [
+            "Place the shaped loaves on a lightly floured cloth or couche with support between the loaves to help maintain their shape.",
+            {
+                "parts": [
+                    {
+                        "text": "Cover and proof at room temperature for approximately "
+                    },
+                    {
+                        "text": "1 hour",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Preheat the oven.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "Preheat the oven to "
+                    },
+                    {
+                        "text": "475°F",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Score the loaves.",
+        "details": [
+            "Transfer the loaves to parchment paper and make four shallow scores across the top of each loaf."
+        ]
+    },
+    {
+        "title": "Bake covered for 12 minutes.",
+        "details": [
+            "Place the loaves in the oven and cover them to retain steam during the initial portion of the bake."
+        ]
+    },
+    {
+        "title": "Finish baking uncovered.",
+        "details": [
+            {
+                "parts": [
+                    {
+                        "text": "After "
+                    },
+                    {
+                        "text": "12 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": ", remove the cover and continue baking for another "
+                    },
+                    {
+                        "text": "12-14 minutes",
+                        "bold": true
+                    },
+                    {
+                        "text": "."
+                    }
+                ]
+            }
+        ]
+    }
+]
+    }
+};
+
+const pctDefs=[{id:"waterPct",label:"Water %",step:.1,max:200},{id:"saltPct",label:"Salt %",step:.1,max:20},{id:"sugarPct",label:"Sugar %",step:.1,max:50},{id:"oilPct",label:"Olive Oil %",step:.1,max:50},{id:"yeastPct",label:"Yeast %",step:.01,max:10},{id:"maltPct",label:"Diastatic Malt Powder %",step:.01,max:10}],flourDefs=[{id:"breadFlourPct",label:"Bread Flour %",step:1,max:100},{id:"apFlourPct",label:"All-Purpose Flour %",step:1,max:100}];
+const $=id=>document.getElementById(id),e={pizzaRecipeButtons:$("pizzaRecipeButtons"),rollRecipeButtons:$("rollRecipeButtons"),recipeDescription:$("recipeDescription"),recipeWarning:$("recipeWarning"),portionHeading:$("portionHeading"),pizzaSizeSection:$("pizzaSizeSection"),sizeButtons:$("sizeButtons"),portionCount:$("portionCount"),portionCountLabel:$("portionCountLabel"),portionCountNote:$("portionCountNote"),portionWeight:$("portionWeight"),portionWeightLabel:$("portionWeightLabel"),portionWeightDescription:$("portionWeightDescription"),percentageFields:$("percentageFields"),flourFields:$("flourFields"),flourBlendCard:$("flourBlendCard"),totalFlourRow:$("totalFlourRow"),breadFlourLabel:$("breadFlourLabel"),apFlourRow:$("apFlourRow"),yeastPresetButtons:$("yeastPresetButtons"),standardYeastButton:$("standardYeastButton"),warmYeastButton:$("warmYeastButton"),yeastNote:$("yeastNote"),splitStatus:$("splitStatus"),totalDough:$("totalDough"),totalFlour:$("totalFlour"),hydration:$("hydration"),flourWeight:$("flourWeight"),breadWeight:$("breadWeight"),apWeight:$("apWeight"),waterWeight:$("waterWeight"),waterIngredientLabel:$("waterIngredientLabel"),saltWeight:$("saltWeight"),sugarWeight:$("sugarWeight"),oilWeight:$("oilWeight"),yeastWeight:$("yeastWeight"),breadPercentOutput:$("breadPercentOutput"),apPercentOutput:$("apPercentOutput"),waterPercentOutput:$("waterPercentOutput"),saltPercentOutput:$("saltPercentOutput"),sugarPercentOutput:$("sugarPercentOutput"),oilPercentOutput:$("oilPercentOutput"),yeastPercentOutput:$("yeastPercentOutput"),maltRow:$("maltRow"),maltWeight:$("maltWeight"),maltPercentOutput:$("maltPercentOutput"),poolishBreakdownCard:$("poolishBreakdownCard"),poolishTotalWeight:$("poolishTotalWeight"),poolishHydration:$("poolishHydration"),poolishYeastPercent:$("poolishYeastPercent"),prefermentedFlourMetric:$("prefermentedFlourMetric"),finishedFlour:$("finishedFlour"),finishedWater:$("finishedWater"),finishedYeast:$("finishedYeast"),finishedMalt:$("finishedMalt"),finishedSalt:$("finishedSalt"),finishedOil:$("finishedOil"),finishedDough:$("finishedDough"),poolishFlour:$("poolishFlour"),poolishWater:$("poolishWater"),poolishYeast:$("poolishYeast"),finalFlour:$("finalFlour"),finalWater:$("finalWater"),finalYeast:$("finalYeast"),finalMalt:$("finalMalt"),finalSalt:$("finalSalt"),finalOil:$("finalOil"),finalPoolish:$("finalPoolish"),resetButton:$("resetButton"),recipeNotesHeading:$("recipeNotesHeading"),recipeNotes:$("recipeNotes")};
+function field(d,p){let f=document.createElement("div");f.className="field";f.innerHTML='<label for="'+d.id+'">'+d.label+'</label><div class="number-control"><button type="button" class="step-button" data-target="'+d.id+'" data-direction="-1">−</button><input id="'+d.id+'" type="number" min="0" max="'+d.max+'" step="'+d.step+'" value="0"><button type="button" class="step-button" data-target="'+d.id+'" data-direction="1">+</button></div>';p.appendChild(f);e[d.id]=f.querySelector("input")}
+pctDefs.forEach(d=>field(d,e.percentageFields));flourDefs.forEach(d=>field(d,e.flourFields));
+const poolishControlDefinitions = [
+ {id:"poolishHydrationInput",label:"Poolish Hydration %",step:1,max:300},
+ {id:"poolishYeastInput",label:"Poolish Yeast %",step:0.01,max:10},
+ {id:"poolishTotalPercent",label:"Poolish (% of Total Dough)",step:0.1,max:100}
+];
+poolishControlDefinitions.forEach(d=>field(d,document.getElementById("poolishControlFields")));
+
+
+let active="type1";const ids=["portionCount","portionWeight","waterPct","saltPct","sugarPct","oilPct","yeastPct","maltPct","poolishTotalPercent","poolishHydrationInput","poolishYeastInput","breadFlourPct","apFlourPct"];
+function key(k){return"doughCalculatorRecipe_"+k}function defaults(r) {
+    const poolish = r.poolish || recipes.poolishPizza.poolish;
+    return {
+        poolishTotalPercent: poolish.percentOfTotalDough,
+        poolishHydrationInput: poolish.hydrationPct,
+        poolishYeastInput: poolish.yeastPct,
+        portionCount: r.defaultPortionCount || 1,
+        portionWeight: r.defaultPortionWeight,
+        ...r.formula,
+        maltPct: r.formula.maltPct || 0
     };
+}
 
+function finiteSetting(value, fallback) {
+    if (value === null || value === undefined || String(value).trim() === "") return fallback;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallback;
+}
 
-    const inputIds = [
-        "ballCount",
-        "ballWeight",
-        "waterPct",
-        "saltPct",
-        "sugarPct",
-        "oilPct",
-        "yeastPct",
-        "breadFlourPct",
-        "apFlourPct"
-    ];
+function totalBakersPercent(state) {
+    return 100 + ["waterPct", "saltPct", "sugarPct", "oilPct", "yeastPct", "maltPct"]
+        .reduce((sum, id) => sum + Math.max(0, finiteSetting(state[id], 0)), 0);
+}
 
-
-    function readNumber(element, fallback) {
-
-        const value =
-            Number(element.value);
-
-        if (!Number.isFinite(value)) {
-            return fallback;
+function saved(k) {
+    try {
+        const state = JSON.parse(localStorage.getItem(key(k)) || "null");
+        if (!state || typeof state !== "object" || Array.isArray(state)) return null;
+        // Migrate the former saved flour allocation without losing custom settings.
+        if (state.poolishTotalPercent == null && state.poolishFlourShare != null) {
+            const base = Object.assign({}, defaults(recipes[k]), state);
+            const factor = 1 + finiteSetting(base.poolishHydrationInput, 0) / 100 +
+                finiteSetting(base.poolishYeastInput, 0) / 100;
+            state.poolishTotalPercent = finiteSetting(state.poolishFlourShare, 0) *
+                factor / totalBakersPercent(base) * 100;
         }
-
-        return value;
+        delete state.poolishFlourShare;
+        return state;
+    } catch (error) {
+        return null;
     }
+}
 
+function poolishAllocation() {
+    const base = defaults(recipes[active]);
+    const read = (id, maximum) => Math.max(0, Math.min(maximum,
+        finiteSetting(e[id].value, base[id])));
+    const percentOfTotalDough = read("poolishTotalPercent", 100);
+    const hydrationPct = read("poolishHydrationInput", 300);
+    const yeastPct = read("poolishYeastInput", 10);
+    const state = {};
+    ["waterPct", "saltPct", "sugarPct", "oilPct", "yeastPct", "maltPct"]
+        .forEach(id => { state[id] = e[id].value; });
+    const factor = 1 + hydrationPct / 100 + yeastPct / 100;
+    const flourShare = percentOfTotalDough * totalBakersPercent(state) / (100 * factor);
+    return { percentOfTotalDough, hydrationPct, yeastPct, flourShare };
+}
 
-    function formatWeight(value) {
+function load(s){ids.forEach(id=>{if(s[id]!=null)e[id].value=s[id]})}function save(){let s={};ids.forEach(id=>s[id]=e[id].value);localStorage.setItem(key(active),JSON.stringify(s));localStorage.setItem("doughCalculatorActiveRecipe",active)}
+Object.keys(recipes).forEach(k=>{let b=document.createElement("button");b.type="button";b.dataset.recipeKey=k;b.textContent=recipes[k].name;b.addEventListener("click",()=>select(k));(recipes[k].category==="pizza"?e.pizzaRecipeButtons:e.rollRecipeButtons).appendChild(b)});
+function clearIngredientChecks(){document.querySelectorAll(".ingredient-check").forEach(c=>{c.checked=false;let row=c.closest(".ingredient-row");if(row)row.classList.remove("checked")})}
+function select(k){active=k;clearIngredientChecks();let r=recipes[k];load(Object.assign({},defaults(r),saved(k)||{}));document.querySelectorAll("[data-recipe-key]").forEach(b=>b.className=b.dataset.recipeKey===k?"primary":"secondary");render();calc()}
+function render(){document.getElementById("poolishControls").classList.toggle("hidden",active!=="poolishPizza");let r=recipes[active],g=active==="grinderRoll",p=active==="poolishPizza";const hideYeastPresets =
+        active === "coldFerment" ||
+        active === "grinderRoll" ||
+          active === "poolishPizza";
 
-        if (!Number.isFinite(value) || value < 0) {
-            return "0 g";
-        }
+    e.yeastPresetButtons.classList.toggle(
+        "hidden",
+        hideYeastPresets
+    );
 
-        if (value < 1) {
-            return value.toFixed(2) + " g";
-        }
-
-        if (value < 10) {
-            return value.toFixed(1) + " g";
-        }
-
-        return Math.round(value) + " g";
-    }
-
-
-    function formatPercent(value) {
-
-        if (!Number.isFinite(value)) {
-            return "0%";
-        }
-
-        return Number(value.toFixed(2)) + "%";
-    }
-
-
-    function decimalPlaces(value) {
-
-        const text =
-            String(value);
-
-        if (!text.includes(".")) {
-            return 0;
-        }
-
-        return text.split(".")[1].length;
-    }
-
-
-    function updatePizzaSizeDisplay() {
-
-        const currentWeight =
-            Number(elements.ballWeight.value);
-
-        if (currentWeight === pizzaSizes.size16.weight) {
-
-            elements.size16Button.className =
-                "primary";
-
-            elements.size12Button.className =
-                "secondary";
-
-            elements.pizzaSizeDescription.textContent =
-                '16" default: 470 g';
-
-        } else if (currentWeight === pizzaSizes.size12.weight) {
-
-            elements.size16Button.className =
-                "secondary";
-
-            elements.size12Button.className =
-                "primary";
-
-            elements.pizzaSizeDescription.textContent =
-                '12" default: 265 g';
-
+    e.yeastNote.classList.toggle(
+        "hidden",
+        hideYeastPresets
+    );e.poolishBreakdownCard.classList.toggle("hidden",!p);e.maltRow.classList.toggle("hidden",r.category!=="pizza");e.maltPct.closest(".field").classList.toggle("hidden",r.category!=="pizza");e.waterIngredientLabel.textContent=r.waterTemp?"Water @ "+r.waterTemp:"Water";e.flourBlendCard.classList.toggle("hidden",g);e.totalFlourRow.classList.toggle("hidden",g);e.apFlourRow.classList.toggle("hidden",g||p);e.breadFlourLabel.classList.toggle("subingredient",!g);e.recipeDescription.textContent=r.description;e.recipeWarning.classList.toggle("hidden",r.configured);e.recipeWarning.textContent=r.configured?"":"This recipe is structurally ready, but its final baker's percentages and instructions were not provided. Enter and save the correct values before relying on its output.";e.portionHeading.textContent=r.category==="pizza"?"Pizza Size and Quantity":"Roll Quantity and Weight";e.portionCountLabel.textContent="Number of "+r.portionNamePlural;e.portionCountNote.textContent="One portion per "+r.portionNameSingular.toLowerCase();e.portionWeightLabel.textContent=r.portionWeightLabel;e.pizzaSizeSection.classList.toggle("hidden",!r.sizes.length);e.sizeButtons.innerHTML="";r.sizes.forEach(s=>{let b=document.createElement("button");b.type="button";b.className="secondary";b.dataset.sizeWeight=s.weight;b.textContent=s.name;b.onclick=()=>{e.portionWeight.value=s.weight;calc()};e.sizeButtons.appendChild(b)});e.recipeNotesHeading.textContent=r.name+" Notes";e.recipeNotes.innerHTML="";r.notes.forEach(n => {
+        const li = document.createElement("li");
+        if (typeof n === "string") {
+            li.textContent = n;
         } else {
-
-            elements.size16Button.className =
-                "secondary";
-
-            elements.size12Button.className =
-                "secondary";
-
-            elements.pizzaSizeDescription.textContent =
-                "Custom dough ball weight";
-        }
-    }
-
-
-    function saveSettings() {
-
-        const state = {};
-
-        inputIds.forEach(function (id) {
-
-            state[id] =
-                elements[id].value;
-        });
-
-
-        try {
-
-            localStorage.setItem(
-                "pizzaDoughCalculatorState",
-                JSON.stringify(state)
-            );
-
-        } catch (error) {
-
-            console.warn(
-                "Settings could not be saved.",
-                error
-            );
-        }
-    }
-
-
-    function loadSettings() {
-
-        try {
-
-            const saved =
-                localStorage.getItem(
-                    "pizzaDoughCalculatorState"
-                );
-
-            if (!saved) {
-                return;
+            const strong = document.createElement("strong");
+            strong.textContent = n.title;
+            li.appendChild(strong);
+            if (n.detail) {
+                li.appendChild(document.createTextNode(" " + n.detail));
             }
-
-
-            const state =
-                JSON.parse(saved);
-
-
-            inputIds.forEach(function (id) {
-
-                if (state[id] !== undefined) {
-
-                    elements[id].value =
-                        state[id];
-                }
-            });
-
-        } catch (error) {
-
-            console.warn(
-                "Saved settings could not be loaded.",
-                error
-            );
-        }
-    }
-
-
-    function calculate() {
-
-        const ballCount =
-            Math.max(
-                1,
-                readNumber(
-                    elements.ballCount,
-                    defaults.ballCount
-                )
-            );
-
-
-        const ballWeight =
-            Math.max(
-                1,
-                readNumber(
-                    elements.ballWeight,
-                    defaults.ballWeight
-                )
-            );
-
-
-        const waterPct =
-            Math.max(
-                0,
-                readNumber(
-                    elements.waterPct,
-                    defaults.waterPct
-                )
-            );
-
-
-        const saltPct =
-            Math.max(
-                0,
-                readNumber(
-                    elements.saltPct,
-                    defaults.saltPct
-                )
-            );
-
-
-        const sugarPct =
-            Math.max(
-                0,
-                readNumber(
-                    elements.sugarPct,
-                    defaults.sugarPct
-                )
-            );
-
-
-        const oilPct =
-            Math.max(
-                0,
-                readNumber(
-                    elements.oilPct,
-                    defaults.oilPct
-                )
-            );
-
-
-        const yeastPct =
-            Math.max(
-                0,
-                readNumber(
-                    elements.yeastPct,
-                    defaults.yeastPct
-                )
-            );
-
-
-        const breadFlourPct =
-            Math.max(
-                0,
-                readNumber(
-                    elements.breadFlourPct,
-                    defaults.breadFlourPct
-                )
-            );
-
-
-        const apFlourPct =
-            Math.max(
-                0,
-                readNumber(
-                    elements.apFlourPct,
-                    defaults.apFlourPct
-                )
-            );
-
-
-        const totalDough =
-            ballCount * ballWeight;
-
-
-        const totalBakersPercent =
-            100 +
-            waterPct +
-            saltPct +
-            sugarPct +
-            oilPct +
-            yeastPct;
-
-
-        const flour =
-            totalDough /
-            (totalBakersPercent / 100);
-
-
-        const water =
-            flour * (waterPct / 100);
-
-        const salt =
-            flour * (saltPct / 100);
-
-        const sugar =
-            flour * (sugarPct / 100);
-
-        const oil =
-            flour * (oilPct / 100);
-
-        const yeast =
-            flour * (yeastPct / 100);
-
-
-        const flourSplitTotal =
-            breadFlourPct +
-            apFlourPct;
-
-
-        let breadFlour = 0;
-        let apFlour = 0;
-
-
-        if (flourSplitTotal > 0) {
-
-            breadFlour =
-                flour *
-                (breadFlourPct / flourSplitTotal);
-
-            apFlour =
-                flour *
-                (apFlourPct / flourSplitTotal);
-        }
-
-
-        elements.totalDough.textContent =
-            formatWeight(totalDough);
-
-        elements.totalFlour.textContent =
-            formatWeight(flour);
-
-        elements.hydration.textContent =
-            formatPercent(waterPct);
-
-
-        elements.flourWeight.textContent =
-            formatWeight(flour);
-
-        elements.breadWeight.textContent =
-            formatWeight(breadFlour);
-
-        elements.apWeight.textContent =
-            formatWeight(apFlour);
-
-        elements.waterWeight.textContent =
-            formatWeight(water);
-
-        elements.saltWeight.textContent =
-            formatWeight(salt);
-
-        elements.sugarWeight.textContent =
-            formatWeight(sugar);
-
-        elements.oilWeight.textContent =
-            formatWeight(oil);
-
-        elements.yeastWeight.textContent =
-            formatWeight(yeast);
-
-
-        elements.breadPercentOutput.textContent =
-            formatPercent(breadFlourPct);
-
-        elements.apPercentOutput.textContent =
-            formatPercent(apFlourPct);
-
-        elements.waterPercentOutput.textContent =
-            formatPercent(waterPct);
-
-        elements.saltPercentOutput.textContent =
-            formatPercent(saltPct);
-
-        elements.sugarPercentOutput.textContent =
-            formatPercent(sugarPct);
-
-        elements.oilPercentOutput.textContent =
-            formatPercent(oilPct);
-
-        elements.yeastPercentOutput.textContent =
-            formatPercent(yeastPct);
-
-
-        if (Math.abs(flourSplitTotal - 100) < 0.001) {
-
-            elements.splitStatus.textContent =
-                "Flour blend = 100%";
-
-            elements.splitStatus.className =
-                "valid";
-
-        } else {
-
-            elements.splitStatus.textContent =
-                "Flour blend totals " +
-                formatPercent(flourSplitTotal) +
-                ". The ratio is normalized automatically.";
-
-            elements.splitStatus.className =
-                "invalid";
-        }
-
-
-        updatePizzaSizeDisplay();
-
-        saveSettings();
-    }
-
-
-    /*
-     * Generic minus / plus button system.
-     *
-     * Each button gets the target input ID from data-target.
-     * The input's own step, min, and max values are used.
-     */
-
-    const stepButtons =
-        document.querySelectorAll(".step-button");
-
-
-    stepButtons.forEach(function (button) {
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                const targetId =
-                    button.dataset.target;
-
-                const direction =
-                    Number(button.dataset.direction);
-
-                const input =
-                    document.getElementById(targetId);
-
-
-                if (!input) {
-                    return;
-                }
-
-
-                const step =
-                    Number(input.step) || 1;
-
-                const minimum =
-                    input.min !== ""
-                        ? Number(input.min)
-                        : -Infinity;
-
-                const maximum =
-                    input.max !== ""
-                        ? Number(input.max)
-                        : Infinity;
-
-
-                let current =
-                    Number(input.value);
-
-
-                if (!Number.isFinite(current)) {
-
-                    current =
-                        Number.isFinite(minimum)
-                            ? minimum
-                            : 0;
-                }
-
-
-                let newValue =
-                    current +
-                    (step * direction);
-
-
-                newValue =
-                    Math.max(
-                        minimum,
-                        Math.min(
-                            maximum,
-                            newValue
-                        )
-                    );
-
-
-                const precision =
-                    decimalPlaces(step);
-
-
-                input.value =
-                    Number(
-                        newValue.toFixed(precision)
-                    );
-
-
-                input.dispatchEvent(
-                    new Event(
-                        "input",
-                        {
-                            bubbles: true
-                        }
-                    )
-                );
-
+            if (Array.isArray(n.details) && n.details.length > 0) {
+                const detailList = document.createElement("ul");
+				n.details.forEach(detail => {
+					const detailItem =
+						document.createElement("li");
+
+					if (typeof detail === "string") {
+						detailItem.textContent =
+							detail;
+					} else if (Array.isArray(detail.parts)) {
+
+						detail.parts.forEach(part => {
+
+							if (part.bold) {
+								const strong =
+									document.createElement("strong");
+
+								strong.textContent =
+									part.text;
+
+								detailItem.appendChild(
+									strong
+								);
+							} else {
+								detailItem.appendChild(
+									document.createTextNode(
+										part.text
+									)
+								);
+							}
+						});
+
+					} else {
+
+						if (detail.before) {
+							detailItem.appendChild(
+								document.createTextNode(
+									detail.before
+								)
+							);
+						}
+
+						if (detail.bold) {
+							const strong =
+								document.createElement("strong");
+
+							strong.textContent =
+								detail.bold;
+
+							detailItem.appendChild(
+								strong
+							);
+						}
+
+						if (detail.after) {
+							detailItem.appendChild(
+								document.createTextNode(
+									detail.after
+								)
+							);
+						}
+					}
+
+					detailList.appendChild(
+						detailItem
+					);
+				});
+                li.appendChild(detailList);
             }
-        );
-
+        }
+        e.recipeNotes.appendChild(li);
     });
+    sizeUI()}
+function sizeUI(){let r=recipes[active],w=+e.portionWeight.value,m=null;document.querySelectorAll("[data-size-weight]").forEach(b=>{let x=+b.dataset.sizeWeight===w;b.className=x?"primary":"secondary";if(x)m=r.sizes.find(s=>s.weight===w)});e.portionWeightDescription.textContent=m?m.shortName+" default: "+m.weight+" g":active==="grinderRoll"?"Default roll weight: 286 g":active==="poolishPizza"?"Original recipe: about 364 g per pizza":"Custom portion weight"}
+function n(x,f){let v=+x.value;return Number.isFinite(v)?v:f}function fw(v){if(v<1)return v.toFixed(2)+" g";if(v<10)return v.toFixed(1)+" g";return Math.round(v)+" g"}function fp(v){return Number(v.toFixed(2))+"%"}
 
-
-    /*
-     * Recalculate whenever a number is typed manually.
-     */
-
-    inputIds.forEach(function (id) {
-
-        elements[id].addEventListener(
-            "input",
-            calculate
-        );
-
+function updateIngredientView() {
+    const isPoolish = active === "poolishPizza";
+    document.getElementById("ingredientWeightsCard").classList.toggle("hidden", isPoolish);
+    document.querySelectorAll("#ingredientWeightsCard .stage-row").forEach(row => {
+        const source = row.querySelector("[aria-hidden='true']");
+        const target = row.querySelector(".ingredient-percentage");
+        if (source && target) target.textContent = " (" + source.textContent.trim() + ")";
     });
-
-
-    /*
-     * Pizza size presets.
-     */
-
-    function setPizzaSize(size) {
-
-        elements.ballWeight.value =
-            size.weight;
-
-        calculate();
-    }
-
-
-    elements.size16Button.addEventListener(
-        "click",
-        function () {
-
-            setPizzaSize(
-                pizzaSizes.size16
-            );
-        }
-    );
-
-
-    elements.size12Button.addEventListener(
-        "click",
-        function () {
-
-            setPizzaSize(
-                pizzaSizes.size12
-            );
-        }
-    );
-
-
-    /*
-     * Recipe presets.
-     */
-
-    function applyRecipe(recipe, recipeName) {
-
-        elements.waterPct.value =
-            recipe.waterPct;
-
-        elements.saltPct.value =
-            recipe.saltPct;
-
-        elements.sugarPct.value =
-            recipe.sugarPct;
-
-        elements.oilPct.value =
-            recipe.oilPct;
-
-        elements.yeastPct.value =
-            recipe.yeastPct;
-
-        elements.breadFlourPct.value =
-            recipe.breadFlourPct;
-
-        elements.apFlourPct.value =
-            recipe.apFlourPct;
-
-
-        if (recipeName === "Type 1") {
-
-            elements.type1Button.className =
-                "primary";
-
-            elements.type2Button.className =
-                "secondary";
-
-            elements.recipeTypeDescription.textContent =
-                "Type 1: Original recipe";
-
-        } else {
-
-            elements.type1Button.className =
-                "secondary";
-
-            elements.type2Button.className =
-                "primary";
-
-            elements.recipeTypeDescription.textContent =
-                "Type 2: 65% hydration recipe";
-        }
-
-
-        calculate();
-    }
-
-
-    elements.type1Button.addEventListener(
-        "click",
-        function () {
-
-            applyRecipe(
-                type1Recipe,
-                "Type 1"
-            );
-        }
-    );
-
-
-    elements.type2Button.addEventListener(
-        "click",
-        function () {
-
-            applyRecipe(
-                type2Recipe,
-                "Type 2"
-            );
-        }
-    );
-
-
-    /*
-     * Yeast presets.
-     */
-
-    elements.coldYeastButton.addEventListener(
-        "click",
-        function () {
-
-            elements.yeastPct.value =
-                "0.06";
-
-            calculate();
-        }
-    );
-
-
-    elements.warmYeastButton.addEventListener(
-        "click",
-        function () {
-
-            elements.yeastPct.value =
-                "0.03";
-
-            calculate();
-        }
-    );
-
-
-    /*
-     * Reset everything to the original recipe.
-     */
-
-    elements.resetButton.addEventListener(
-        "click",
-        function () {
-
-            Object.keys(defaults).forEach(
-                function (id) {
-
-                    elements[id].value =
-                        defaults[id];
-                }
-            );
-
-
-            elements.type1Button.className =
-                "primary";
-
-            elements.type2Button.className =
-                "secondary";
-
-            elements.recipeTypeDescription.textContent =
-                "Type 1: Original recipe";
-
-
-            calculate();
-        }
-    );
-
-
-    /*
-     * Load previously saved settings.
-     */
-
-    loadSettings();
-
-    calculate();
-
-
-    /*
-     * Register PWA service worker.
-     */
-
-    if ("serviceWorker" in navigator) {
-
-        navigator.serviceWorker
-            .register("service-worker.js")
-            .catch(
-                function (error) {
-
-                    console.warn(
-                        "Service worker registration failed.",
-                        error
-                    );
-                }
-            );
-    }
-
+    if (!isPoolish) return;
+    const recipe = recipes[active];
+    const allocation = poolishAllocation();
+    const totalFlour = Math.max(0, n(e.portionCount, recipe.defaultPortionCount)) * Math.max(0, n(e.portionWeight, recipe.defaultPortionWeight)) /
+        ((100 + n(e.waterPct,0) + n(e.saltPct,0) + n(e.sugarPct,0) + n(e.oilPct,0) + n(e.yeastPct,0) + n(e.maltPct,0))/100);
+    const poolishFlour = totalFlour * allocation.flourShare / 100;
+    const percent = value => Number(value.toFixed(3)) + "%";
+    const setLabel = (id, label, pct) => {
+        const value = document.getElementById(id);
+        const row = value.closest(".stage-row");
+        const target = row.querySelector(".ingredient-text") || row.querySelector("span");
+        if (target) target.textContent = label + " (" + percent(pct) + ")";
+    };
+    setLabel("poolishFlour", "Bread Flour", 100);
+    setLabel("poolishWater", "Water", allocation.hydrationPct);
+    setLabel("poolishYeast", "Instant Dry Yeast", allocation.yeastPct);
+    setLabel("finalFlour", "Bread Flour", 100 - allocation.flourShare);
+    setLabel("finalWater", "Water @ 50°F", n(e.waterPct,0) - (allocation.flourShare*allocation.hydrationPct/100));
+    setLabel("finalYeast", "Instant Dry Yeast", n(e.yeastPct,0) - (allocation.flourShare*allocation.yeastPct/100));
+    setLabel("finalMalt", "Diastatic Malt Powder", n(e.maltPct,0));
+    setLabel("finalSalt", "Salt", n(e.saltPct,0));
+    setLabel("finalOil", "Olive Oil", n(e.oilPct,0));
+    setLabel("finalPoolish", "Mature Poolish", allocation.flourShare + (allocation.flourShare*allocation.hydrationPct/100) + (allocation.flourShare*allocation.yeastPct/100));
+    setLabel("finishedFlour", "Total Flour", 100);
+    setLabel("finishedWater", "Total Water", n(e.waterPct,0));
+    setLabel("finishedYeast", "Total Yeast", n(e.yeastPct,0));
+    setLabel("finishedMalt", "Diastatic Malt Powder", n(e.maltPct,0));
+    setLabel("finishedSalt", "Salt", n(e.saltPct,0));
+    setLabel("finishedOil", "Olive Oil", n(e.oilPct,0));
+}
+
+function calc(){
+ const base = defaults(recipes[active]);
+ ["poolishTotalPercent", "poolishHydrationInput", "poolishYeastInput"].forEach(id => {
+     const input = e[id];
+     if (input.value.trim() !== "") {
+         input.value = Math.max(0, Math.min(Number(input.max), finiteSetting(input.value, base[id])));
+     }
+ });
+ const allocation = poolishAllocation();
+  let r=recipes[active],c=Math.max(1,n(e.portionCount,r.defaultPortionCount)),pw=Math.max(1,n(e.portionWeight,r.defaultPortionWeight)),w=Math.max(0,n(e.waterPct,0)),sa=Math.max(0,n(e.saltPct,0)),su=Math.max(0,n(e.sugarPct,0)),o=Math.max(0,n(e.oilPct,0)),y=Math.max(0,n(e.yeastPct,0)),malt=Math.max(0,n(e.maltPct,0)),bf=Math.max(0,n(e.breadFlourPct,0)),ap=Math.max(0,n(e.apFlourPct,0));
+  let td=c*pw,totalPct=100+w+sa+su+o+y+malt,f=td/(totalPct/100),split=bf+ap,b=split?f*bf/split:0,a=split?f*ap/split:0;
+  e.totalDough.textContent=fw(td);e.totalFlour.textContent=fw(f);e.hydration.textContent=fp(w);e.flourWeight.textContent=fw(f);e.breadWeight.textContent=fw(b);e.apWeight.textContent=fw(a);e.waterWeight.textContent=fw(f*w/100);e.saltWeight.textContent=fw(f*sa/100);e.sugarWeight.textContent=fw(f*su/100);e.oilWeight.textContent=fw(f*o/100);e.yeastWeight.textContent=fw(f*y/100);e.maltWeight.textContent=fw(f*malt/100);
+  e.breadPercentOutput.textContent=fp(bf);e.apPercentOutput.textContent=fp(ap);e.waterPercentOutput.textContent=fp(w);e.saltPercentOutput.textContent=fp(sa);e.sugarPercentOutput.textContent=fp(su);e.oilPercentOutput.textContent=fp(o);e.yeastPercentOutput.textContent=fp(y);e.maltPercentOutput.textContent=fp(malt);
+  if(active==="poolishPizza"){
+    let pf=f*(allocation.flourShare/100),pwat=f*((allocation.flourShare*allocation.hydrationPct/100)/100),py=f*((allocation.flourShare*allocation.yeastPct/100)/100);
+    let poolishWeight=pf+pwat+py,poolishHydration=pf>0?pwat/pf*100:0,poolishYeastPct=pf>0?py/pf*100:0;
+    e.poolishFlour.textContent=fw(pf);e.poolishWater.textContent=fw(pwat);e.poolishYeast.textContent=fw(py);
+    const invalid = pf>f+0.00001 || pwat>f*w/100+0.00001 || py>f*y/100+0.00001;
+    document.getElementById("poolishValidation").textContent=invalid?"Poolish exceeds the recipe's total flour, water, or yeast. Reduce the poolish settings or increase the corresponding total baker's percentage. Final additions are unavailable until corrected.":"";
+    e.poolishTotalWeight.textContent=fw(poolishWeight);e.poolishHydration.textContent=fp(poolishHydration);e.poolishYeastPercent.textContent=fp(poolishYeastPct);e.prefermentedFlourMetric.textContent="Prefermented flour: "+fp(allocation.flourShare);
+    e.finalFlour.textContent=fw(f-pf);e.finalWater.textContent=fw(f*w/100-pwat);e.finalYeast.textContent=fw(f*y/100-py);e.finalMalt.textContent=fw(f*malt/100);e.finalSalt.textContent=fw(f*sa/100);e.finalOil.textContent=fw(f*o/100);e.finalPoolish.textContent=fw(poolishWeight);if(invalid){e.finalFlour.textContent="Unavailable";e.finalWater.textContent="Unavailable";e.finalYeast.textContent="Unavailable";}
+    e.finishedFlour.textContent=fw(f);e.finishedWater.textContent=fw(f*w/100);e.finishedYeast.textContent=fw(f*y/100);e.finishedMalt.textContent=fw(f*malt/100);e.finishedSalt.textContent=fw(f*sa/100);e.finishedOil.textContent=fw(f*o/100);e.finishedDough.textContent=fw(td);
+  }
+  e.splitStatus.textContent=Math.abs(split-100)<.001?"Flour blend = 100%":"Flour blend totals "+fp(split)+". The ratio is normalized automatically.";e.splitStatus.className=Math.abs(split-100)<.001?"valid":"invalid";updateIngredientView();sizeUI();save()
+}
+document.querySelectorAll(".ingredient-check").forEach(c=>c.addEventListener("change",()=>{let row=c.closest(".ingredient-row");if(row)row.classList.toggle("checked",c.checked)}));ids.forEach(id=>e[id].addEventListener("input",calc));document.querySelectorAll(".step-button").forEach(b=>b.addEventListener("click",()=>{let i=$(b.dataset.target),step=+i.step||1,min=i.min!==""?+i.min:-Infinity,max=i.max!==""?+i.max:Infinity,v=+i.value;if(!Number.isFinite(v))v=Number.isFinite(min)?min:0;let d=(String(step).split(".")[1]||"").length;i.value=Number(Math.max(min,Math.min(max,v+step*(+b.dataset.direction))).toFixed(d));i.dispatchEvent(new Event("input",{bubbles:true}))}));e.standardYeastButton.onclick=()=>{e.yeastPct.value=.06;calc()};e.warmYeastButton.onclick=()=>{e.yeastPct.value=.03;calc()};e.resetButton.onclick=()=>{localStorage.removeItem(key(active));load(defaults(recipes[active]));render();calc()};try{let a=localStorage.getItem("doughCalculatorActiveRecipe");if(recipes[a])active=a}catch{}select(active);if("serviceWorker"in navigator)navigator.serviceWorker.register("service-worker.js").catch(console.warn)
 });
-</script>
-
-</body>
+  </script>
+ </body>
 </html>
