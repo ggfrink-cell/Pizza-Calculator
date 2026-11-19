@@ -81,7 +81,7 @@
 #visualPlanner .vp-track{position:relative;flex-shrink:0;min-height:62px;background:var(--card,#fff)}
 #visualPlanner .vp-window{position:absolute;top:0;bottom:0;background:rgba(49,151,103,.12);pointer-events:none}
 #visualPlanner .vp-grid{position:absolute;top:0;bottom:0;border-left:1px solid rgba(130,115,90,.17);pointer-events:none}
-#visualPlanner .vp-bar{position:absolute;top:14px;height:34px;border:0;border-radius:6px;color:#fff;font-size:11px;min-width:14px;padding:0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;touch-action:pan-y;box-shadow:0 1px 3px #0002;user-select:none}
+#visualPlanner .vp-bar{position:absolute;top:14px;height:34px;border:0;border-radius:6px;color:#fff;font-size:11px;min-width:14px;padding:0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;touch-action:none;-webkit-user-select:none;-webkit-touch-callout:none;box-shadow:0 1px 3px #0002;user-select:none}
 #visualPlanner .vp-bar:focus-visible{outline:3px solid #237ec4;outline-offset:3px}#visualPlanner .vp-bar[aria-pressed=true]{outline:3px solid #237ec4;outline-offset:2px}
 #visualPlanner .vp-bar.vp-fixed{cursor:grab}#visualPlanner .vp-handle{position:absolute;right:0;top:0;bottom:0;width:12px;background:#ffffff45;cursor:ew-resize;border-left:1px solid #ffffff80;touch-action:none}
 #visualPlanner .vp-axis{height:52px;min-height:52px}#visualPlanner .vp-tick{position:absolute;top:5px;font-size:10px;line-height:1.6;white-space:nowrap;padding-left:4px;color:var(--muted,#706657)}
@@ -93,6 +93,12 @@
 
 /* Empty status messages must not leave a warning-colored strip. */
 #plannerStatus:empty{display:none;}
+
+#visualPlanner .vp-dragging{cursor:grabbing;z-index:6;outline:2px solid #237ec4;}
+@media(pointer:coarse){
+ #visualPlanner .vp-bar{height:44px;top:9px;min-width:28px;}
+ #visualPlanner .vp-handle{width:26px;}
+}
 </style>
  </head>
  <body>
@@ -146,7 +152,7 @@
 <details id="plannerSchedule" open><summary>Schedule: step by step</summary>
 <div id="visualPlanner">
 <div class="vp-toolbar"><div><strong>Schedule timeline</strong><div class="vp-legend"><span class="vp-dot vp-action"></span>Your time <span class="vp-dot vp-ferment"></span>Fermentation <span class="vp-dot vp-bake"></span>Bake</div></div><label>View <select id="vpView"><option value="timeline">Timeline</option><option value="both">Timeline + steps</option><option value="steps">Steps</option></select></label><label><span>Long ferments</span><select id="vpCompact"><option value="compact">Compact</option><option value="actual">Actual time scale</option></select></label><label>Scale <select id="vpScale"><option value="18">Overview</option><option value="36" selected>Standard</option><option value="72">Detailed</option></select></label><button type="button" id="vpUndo" class="secondary" disabled>Undo last edit</button></div>
-<p class="vp-help">Drag to move by the minute; preparation bars snap to availability edges. Drag the right edge of a ferment to change its duration. Click any bar for precise controls. Only you can move the bake target. // marks compressed time.</p>
+<p class="vp-help">Drag bars to move; drag a ferment's right edge to resize. Swipe empty chart space to scroll. Drag the right edge of a ferment to change its duration. Click any bar for precise controls. Only you can move the bake target. // marks compressed time.</p>
 <div id="vpCompressionSummary" class="vp-help"></div>
 <div id="vpMessage" role="status" aria-live="polite"></div>
 <div id="vpScroll" tabindex="0" aria-label="Schedule timeline; scroll horizontally to see all days"><div id="vpChart"></div></div>
@@ -2418,7 +2424,7 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
    const duration=Number(((row.end-row.start)/hour).toFixed(2));
    const track=makeLine(row.title,(duration?vpDuration(row.end-row.start)+" | ":"")+"Start: "+format(row.start));
    const bar=document.createElement("button");bar.type="button";bar.className="vp-bar "+(row.fixed?"vp-bake vp-fixed":row.active?"vp-action":"vp-ferment");bar.dataset.row=row.id;
-   bar.style.left=xAt(row.start)+"px";bar.style.width=Math.max(14,(xAt(row.end)-xAt(row.start)))+"px";const barText=document.createElement("span");barText.className="vp-bar-text";barText.textContent=duration>0?vpDuration(row.end-row.start):"";bar.append(barText);
+   bar.style.left=xAt(row.start)+"px";bar.style.width=Math.max(window.matchMedia("(pointer: coarse)").matches?28:14,(xAt(row.end)-xAt(row.start)))+"px";const barText=document.createElement("span");barText.className="vp-bar-text";barText.textContent=duration>0?vpDuration(row.end-row.start):"";bar.append(barText);
    bar.title=row.title+" | "+format(row.start)+" to "+format(row.end);bar.setAttribute("aria-label",bar.title);bar.setAttribute("aria-pressed",String(vpSelected===row.id));
    if(!row.active&&row.minimum!==undefined){const handle=document.createElement("span");handle.className="vp-handle";handle.title="Drag to change duration";bar.append(handle);}
    let dragged=false;
@@ -2426,16 +2432,20 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
    bar.addEventListener("keydown",event=>{if((row.fixed&&row.id!=="bake")||!["ArrowLeft","ArrowRight"].includes(event.key))return;event.preventDefault();const direction=event.key==="ArrowRight"?1:-1;if(row.active)vpMove(row,direction*15);else vpResize(row,direction*0.25);});
    bar.addEventListener("pointerdown",event=>{
     const resize=event.target.classList.contains("vp-handle");
-    if((row.fixed&&row.id!=="bake")||(!row.active&&!resize)||event.button!==0)return;
+    if((row.fixed&&row.id!=="bake")||(!row.active&&!resize)||(event.pointerType!=="touch"&&event.button!==0)||event.isPrimary===false)return;
     const x=event.clientX,originalLeft=parseFloat(bar.style.left),originalWidth=parseFloat(bar.style.width);let delta=0;
     bar.setPointerCapture(event.pointerId);
+    bar.classList.add("vp-dragging");
     const move=e=>{const pixels=e.clientX-x;if(Math.abs(pixels)>4)dragged=true;if(!dragged)return;e.preventDefault();const anchor=resize?row.end:row.start;const rawTime=timeAt(xAt(anchor)+pixels);const target=vpDragTarget(row,rawTime,resize,windows,xAt);delta=(target-anchor)/hour;if(resize)bar.style.width=Math.max(14,xAt(row.end+delta*hour)-xAt(row.start))+"px";else bar.style.left=(xAt(row.start+delta*hour))+"px";vpNotify(resize?"Duration: "+vpDuration(row.end-row.start+delta*hour)+"; release to validate.":"Start: "+format(row.start+delta*hour)+"; release to validate.");};
-    const cleanup=()=>{bar.removeEventListener("pointermove",move);bar.removeEventListener("pointerup",up);bar.removeEventListener("pointercancel",cancel);};
+    const cleanup=()=>{bar.classList.remove("vp-dragging");bar.removeEventListener("lostpointercapture",cancel);bar.removeEventListener("pointermove",move);bar.removeEventListener("pointerup",up);bar.removeEventListener("pointercancel",cancel);};
     const up=()=>{cleanup();if(!dragged)return;if(resize)vpResize(row,delta);else vpMove(row,delta*60);if(bar.isConnected){bar.style.left=originalLeft+"px";bar.style.width=originalWidth+"px";}};
     const cancel=()=>{cleanup();bar.style.left=originalLeft+"px";bar.style.width=originalWidth+"px";};
-    bar.addEventListener("pointermove",move);bar.addEventListener("pointerup",up);bar.addEventListener("pointercancel",cancel);
-   });track.append(bar);
-   const handleSpace=bar.querySelector(".vp-handle")?14:0;
+    bar.addEventListener("pointermove",move);bar.addEventListener("pointerup",up);bar.addEventListener("pointercancel",cancel);bar.addEventListener("lostpointercapture",cancel);
+   }, {passive:false});
+   bar.addEventListener("contextmenu",event=>event.preventDefault());
+   bar.draggable=false;
+   track.append(bar);
+   const handleSpace=bar.querySelector(".vp-handle")?(window.matchMedia("(pointer: coarse)").matches?26:14):0;
    if(barText.getBoundingClientRect().width>bar.clientWidth-10-handleSpace)barText.hidden=true;
   }
   scroll.scrollLeft=position;vpEditor();
