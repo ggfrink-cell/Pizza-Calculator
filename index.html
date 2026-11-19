@@ -10,7 +10,7 @@
   <link href="manifest.json" rel="manifest"/>
   <link href="icon-192.png" rel="apple-touch-icon"/>
   <title>
-   Dough Calculator
+   Dough Calculator - Updated Planner
   </title>
   <style>
    :root {--background:#f5f1e8;--card:#fff;--text:#29251f;--muted:#716a60;--border:#ded6c9;--accent:#8b572a;--accent-hover:#71451f;--input-background:#fff;--output-background:#faf7f1;--green:#39724a;--red:#a83d3d;--warning-background:#fff7df;--warning-border:#d9a52f}
@@ -29,7 +29,71 @@
 .stage-row .subingredient{padding-left:0}
   
 .ingredient-text{display:inline!important}.ingredient-percentage{display:inline!important;white-space:nowrap}.stage-row .ingredient-name{flex-wrap:nowrap}.ingredient-row.checked .ingredient-text{text-decoration:line-through}
-  </style>
+  
+/* Bake planner, scoped to its own section. */
+#bakePlanner .planner-settings{margin:18px 0;padding:14px;background:var(--output-background);border:1px solid var(--border);border-radius:10px}
+#bakePlanner summary{cursor:pointer;font-weight:650;padding:8px 0;min-height:44px}
+#bakePlanner summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#bakePlanner .planner-highlight{font-weight:750;font-size:1rem;margin-top:8px;line-height:1.5}
+#bakePlanner .planner-timeline{list-style:none;padding:0;margin:12px 0}
+#bakePlanner .planner-event{border-left:3px solid var(--accent);padding:10px 14px;margin:0 0 12px;background:var(--output-background);border-radius:0 8px 8px 0}
+#bakePlanner .planner-event time{display:block;font-weight:700;color:var(--accent);margin-bottom:5px}
+#bakePlanner .planner-event p{margin:6px 0 0;color:var(--muted);font-size:.9rem;line-height:1.5}
+#bakePlanner input[type="datetime-local"]{text-align:left;width:100%;max-width:100%}
+#bakePlanner button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:650px){#bakePlanner .summary{grid-template-columns:1fr}}
+
+#bakePlanner .summary{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+#bakePlanner .planner-event .input-grid{margin-top:12px}
+#bakePlanner .planner-event.passive{border-left-color:var(--border);background:transparent}
+#bakePlanner .planner-event input{font-size:.9rem;text-align:left;max-width:100%}
+#bakePlanner .planner-event .button-row button{font-size:.8rem;padding:8px}
+#bakePlanner .planner-event strong{display:block;font-size:1.05rem}
+@media(max-width:650px){#bakePlanner .summary{grid-template-columns:1fr}#bakePlanner .input-grid{grid-template-columns:1fr}}
+
+#bakePlanner .availability-box{border:1px solid var(--border);border-radius:12px;padding:16px;margin:18px 0}
+#bakePlanner .availability-box fieldset{border:1px solid var(--border);border-radius:8px;padding:12px;min-width:0}
+#bakePlanner .availability-box legend{font-weight:700;padding:0 5px}
+#bakePlanner .check-label{display:flex;align-items:center;gap:8px;margin:8px 0}
+#bakePlanner input[type=checkbox]{width:auto;min-height:20px;accent-color:#8b5b2e}
+#bakePlanner #plannerHighlights{display:none}
+#bakePlanner .planner-event.passive{padding:8px 12px;margin:4px 0 14px 10px;border-left:2px solid var(--border);border-radius:0;background:transparent}
+#bakePlanner .planner-event.passive strong{font-size:.9rem}
+#bakePlanner .planner-event.passive p{margin:5px 0;font-size:.85rem}
+#bakePlanner #plannerWarnings{padding-left:22px;line-height:1.5}
+#bakePlanner #plannerWarnings li{margin:7px 0}
+#bakePlanner input:focus-visible,#bakePlanner button:focus-visible,#bakePlanner summary:focus-visible{outline:3px solid #367a9a;outline-offset:2px}
+#bakePlanner .input-grid>*{min-width:0}
+#bakePlanner .planner-event input{box-sizing:border-box;min-width:0;width:100%}
+#bakePlanner > summary{font-size:1.2rem}#plannerSchedule{margin-top:16px}#weekdayRange2{margin-top:12px}
+
+#visualPlanner{margin:16px 0;color:var(--text,#302b25)}
+#visualPlanner .vp-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+#visualPlanner label{font-size:12px;display:grid;gap:4px}#visualPlanner select{padding:7px;border:1px solid #c9c0b4;border-radius:7px;background:var(--card,#fff);color:inherit}
+#visualPlanner .vp-legend{display:flex;gap:7px;align-items:center;font-size:11px;margin-top:6px;flex-wrap:wrap}
+#visualPlanner .vp-dot{width:10px;height:10px;display:inline-block;border-radius:3px}#visualPlanner .vp-action{background:#80572e}#visualPlanner .vp-ferment{background:#297d80}#visualPlanner .vp-bake{background:#b34e31}
+#visualPlanner .vp-help{font-size:12px;color:var(--muted,#706657);margin:10px 0}
+#vpMessage:empty{display:none}#vpMessage{padding:9px 12px;margin:8px 0;border-radius:7px;background:#fff1cc;color:#543a12;font-size:13px}
+#vpScroll{overflow:auto;max-width:100%;border:1px solid #d8cfc2;border-radius:10px;background:var(--card,#fff)}
+#vpChart{position:relative}#visualPlanner .vp-line{display:flex;min-height:62px;border-bottom:1px solid #e7dfd5}
+#visualPlanner .vp-label{position:sticky;left:0;z-index:4;flex:0 0 175px;width:175px;box-sizing:border-box;padding:10px;background:var(--card,#fff);border-right:1px solid #d8cfc2;font-size:12px;font-weight:650}
+#visualPlanner .vp-label small{display:block;font-weight:400;font-size:11px;color:var(--muted,#706657);margin-top:4px}
+#visualPlanner .vp-track{position:relative;flex-shrink:0;min-height:62px;background:var(--card,#fff)}
+#visualPlanner .vp-window{position:absolute;top:0;bottom:0;background:rgba(49,151,103,.12);pointer-events:none}
+#visualPlanner .vp-grid{position:absolute;top:0;bottom:0;border-left:1px solid rgba(130,115,90,.17);pointer-events:none}
+#visualPlanner .vp-bar{position:absolute;top:14px;height:34px;border:0;border-radius:6px;color:#fff;font-size:11px;min-width:14px;padding:0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;touch-action:pan-y;box-shadow:0 1px 3px #0002;user-select:none}
+#visualPlanner .vp-bar:focus-visible{outline:3px solid #237ec4;outline-offset:3px}#visualPlanner .vp-bar[aria-pressed=true]{outline:3px solid #237ec4;outline-offset:2px}
+#visualPlanner .vp-bar.vp-fixed{cursor:grab}#visualPlanner .vp-handle{position:absolute;right:0;top:0;bottom:0;width:12px;background:#ffffff45;cursor:ew-resize;border-left:1px solid #ffffff80;touch-action:none}
+#visualPlanner .vp-axis{height:52px;min-height:52px}#visualPlanner .vp-tick{position:absolute;top:5px;font-size:10px;line-height:1.6;white-space:nowrap;padding-left:4px;color:var(--muted,#706657)}
+#vpEditor{border:1px solid #d8cfc2;border-radius:9px;padding:12px;margin-top:10px;background:var(--card,#fff)}#vpEditor .vp-edit-row{display:flex;align-items:end;gap:8px;flex-wrap:wrap;margin-top:10px}#vpEditor input{max-width:230px}#vpEditor p{font-size:12px;margin:5px 0}#visualPlanner [hidden]{display:none!important}
+@media(max-width:550px){#visualPlanner .vp-label{flex-basis:120px;width:120px;font-size:11px}#visualPlanner .vp-toolbar{gap:8px}#visualPlanner .vp-help{font-size:11px}}
+@media(prefers-color-scheme:dark){#vpMessage{background:#4a3819;color:#ffdfa0}}
+#visualPlanner .vp-break{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;pointer-events:none;border-left:2px dashed #9b8d78;border-right:2px dashed #9b8d78;color:#796b57;font-size:10px;background:rgba(160,145,120,.09);overflow:hidden;white-space:nowrap}#visualPlanner .vp-axis .vp-break{background:var(--card,#fff);z-index:2;box-sizing:border-box;padding:4px 8px;white-space:normal;text-align:center;line-height:1.35;overflow:visible;font-weight:600}
+#visualPlanner .vp-bar-text{display:inline-block;white-space:nowrap}#visualPlanner .vp-bar-text[hidden]{display:none}
+
+/* Empty status messages must not leave a warning-colored strip. */
+#plannerStatus:empty{display:none;}
+</style>
  </head>
  <body>
   <div class="container">
@@ -37,7 +101,7 @@
     Dough Calculator
    </h1>
    <p class="subtitle">
-    Choose a recipe and portion size, or adjust any value.
+    Choose a recipe and portion size, or adjust any value. Updated planner: collapsible sections and two weekday time ranges.
    </p>
    <div class="card">
     <h2>
@@ -58,6 +122,42 @@
     <div class="notice hidden" id="recipeWarning">
     </div>
    </div>
+
+<details class="card" id="bakePlanner" open>
+<summary id="plannerHeading">Pizza bake planner</summary>
+<p id="plannerRecipe" class="subtitle"></p>
+<div class="field"><label for="bakeAt">When does the first pizza go into the oven?</label><input type="datetime-local" id="bakeAt" min="2000-01-01T00:00" max="2100-12-31T23:59"></div>
+<div class="button-row"><button type="button" class="secondary" id="plannerSaturday">Saturday at 5 PM</button><button type="button" class="secondary" id="plannerTomorrow">Tomorrow at 5 PM</button><button type="button" class="secondary" id="plannerReset">Clear custom times</button></div>
+<details class="availability-box" id="plannerAvailability" open>
+<summary>When can you work on the dough?</summary>
+<label class="check-label" for="availableEnabled"><input type="checkbox" id="availableEnabled" checked>Automatically fit preparation into my available hours</label>
+<div class="input-grid">
+<fieldset><legend>Weekdays (Monday-Friday)</legend><label class="check-label" for="weekdayAvailable"><input type="checkbox" id="weekdayAvailable" checked>Available on weekdays</label><div class="input-grid"><div class="field"><label for="weekdayStart">Available from</label><input type="time" id="weekdayStart" value="17:00"></div><div class="field"><label for="weekdayEnd">Finish by</label><input type="time" id="weekdayEnd" value="21:00"></div></div><button type="button" class="secondary" id="addWeekdayRange" aria-expanded="false" aria-controls="weekdayRange2">+ Add second time range</button><div id="weekdayRange2" class="input-grid hidden"><div class="field"><label for="weekdayStart2">Second range from</label><input type="time" id="weekdayStart2" value="06:30"></div><div class="field"><label for="weekdayEnd2">Finish by</label><input type="time" id="weekdayEnd2" value="07:00"></div></div></fieldset>
+<fieldset><legend>Weekend (Saturday-Sunday)</legend><label class="check-label" for="weekendAvailable"><input type="checkbox" id="weekendAvailable" checked>Available on weekends</label><div class="input-grid"><div class="field"><label for="weekendStart">Available from</label><input type="time" id="weekendStart" value="08:00"></div><div class="field"><label for="weekendEnd">Finish by</label><input type="time" id="weekendEnd" value="21:00"></div></div></fieldset>
+</div>
+
+
+</details>
+
+<details class="planner-settings" id="plannerGuidelines"><summary>Planning guidelines and task durations</summary><div class="input-grid" id="plannerFields"></div></details>
+<div id="plannerHighlights" class="summary"></div>
+<p id="plannerStatus" role="status" aria-live="polite"></p><p id="plannerAdjusted" class="install-note"></p>
+<details id="plannerWarningDetails"><summary id="plannerWarningCount">Timing notes / warnings</summary><ul id="plannerWarnings"></ul></details>
+<details id="plannerSchedule" open><summary>Schedule: step by step</summary>
+<div id="visualPlanner">
+<div class="vp-toolbar"><div><strong>Schedule timeline</strong><div class="vp-legend"><span class="vp-dot vp-action"></span>Your time <span class="vp-dot vp-ferment"></span>Fermentation <span class="vp-dot vp-bake"></span>Bake</div></div><label>View <select id="vpView"><option value="timeline">Timeline</option><option value="both">Timeline + steps</option><option value="steps">Steps</option></select></label><label><span>Long ferments</span><select id="vpCompact"><option value="compact">Compact</option><option value="actual">Actual time scale</option></select></label><label>Scale <select id="vpScale"><option value="18">Overview</option><option value="36" selected>Standard</option><option value="72">Detailed</option></select></label><button type="button" id="vpUndo" class="secondary" disabled>Undo last edit</button></div>
+<p class="vp-help">Drag to move by the minute; preparation bars snap to availability edges. Drag the right edge of a ferment to change its duration. Click any bar for precise controls. Only you can move the bake target. // marks compressed time.</p>
+<div id="vpCompressionSummary" class="vp-help"></div>
+<div id="vpMessage" role="status" aria-live="polite"></div>
+<div id="vpScroll" tabindex="0" aria-label="Schedule timeline; scroll horizontally to see all days"><div id="vpChart"></div></div>
+<div id="vpEditor" hidden></div>
+</div>
+<ol id="plannerTimeline" class="planner-timeline"></ol>
+<div class="button-row"><button type="button" class="primary" id="plannerExport">Download calendar (.ics)</button></div>
+
+</details>
+</details>
+
    <div class="card">
     <h2 id="portionHeading">
      Pizza Size and Quantity
@@ -174,9 +274,7 @@
     <h2>
      Poolish Settings
     </h2>
-    <p class="install-note">
-     Poolish hydration and yeast percentage use poolish flour as 100%. Poolish percentage is the complete poolish weight divided by total finished dough weight. The flour allocation is calculated automatically. Batch-size changes scale the poolish with the recipe.
-    </p>
+    
     <div class="input-grid" id="poolishControlFields">
     </div>
     <p aria-live="polite" class="invalid" id="poolishValidation" role="status">
@@ -223,9 +321,7 @@
       <h3>
        Poolish
       </h3>
-      <p class="install-note">
-       Percentages use poolish flour as 100%.
-      </p>
+      
       <div class="stage-row ingredient-row">
        <div class="ingredient-name">
         <input aria-label="Mark bread flour complete" class="ingredient-check" type="checkbox"/>
@@ -264,9 +360,7 @@
       <h3>
        Final Dough Additions
       </h3>
-      <p class="install-note">
-       Percentages use total recipe flour as 100%; these are final additions only.
-      </p>
+      
       <div class="stage-row ingredient-row">
        <div class="ingredient-name">
         <input aria-label="Mark bread flour complete" class="ingredient-check" type="checkbox"/>
@@ -578,9 +672,7 @@
       Reset Selected Recipe
      </button>
     </div>
-    <p class="install-note">
-     Each recipe's custom settings are saved separately on this device.
-    </p>
+    
    </div>
    <div class="card">
     <h2 id="recipeNotesHeading">
@@ -1778,5 +1870,702 @@ function calc(){
 document.querySelectorAll(".ingredient-check").forEach(c=>c.addEventListener("change",()=>{let row=c.closest(".ingredient-row");if(row)row.classList.toggle("checked",c.checked)}));ids.forEach(id=>e[id].addEventListener("input",calc));document.querySelectorAll(".step-button").forEach(b=>b.addEventListener("click",()=>{let i=$(b.dataset.target),step=+i.step||1,min=i.min!==""?+i.min:-Infinity,max=i.max!==""?+i.max:Infinity,v=+i.value;if(!Number.isFinite(v))v=Number.isFinite(min)?min:0;let d=(String(step).split(".")[1]||"").length;i.value=Number(Math.max(min,Math.min(max,v+step*(+b.dataset.direction))).toFixed(d));i.dispatchEvent(new Event("input",{bubbles:true}))}));e.standardYeastButton.onclick=()=>{e.yeastPct.value=.06;calc()};e.warmYeastButton.onclick=()=>{e.yeastPct.value=.03;calc()};e.resetButton.onclick=()=>{localStorage.removeItem(key(active));load(defaults(recipes[active]));render();calc()};try{let a=localStorage.getItem("doughCalculatorActiveRecipe");if(recipes[a])active=a}catch{}select(active);if("serviceWorker"in navigator)navigator.serviceWorker.register("service-worker.js").catch(console.warn)
 });
   </script>
- </body>
+ <script>
+document.addEventListener("DOMContentLoaded",function(){
+/* All scheduler calculations are local; recipe quantities are not modified. */
+function plannerShiftCold(rows, hours, suppliedOverrides, stageId = "cold") {
+    if (!Number.isFinite(hours)) throw new Error("Enter a valid hour adjustment.");
+    const index = rows.findIndex(row => row.id === stageId);
+    if (index < 0) throw new Error("This schedule has no selected fermentation stage.");
+    const cold = rows[index];
+    const duration = cold.end - cold.start + hours * 3600000;
+    if(duration < (cold.minimum || 0)) throw new Error("Cannot shorten below the minimum of " + Number(((cold.minimum||0)/3600000).toFixed(2)) + " hours. Change the minimum setting first.");
+    if (duration < 0 || duration > (cold.maximum || 720 * 3600000)) throw new Error("Adjustment exceeds the configured fermentation maximum.");
+    const result = {...suppliedOverrides};
+    for (const row of rows.slice(0,index).filter(row => row.active && !row.fixed)) {
+        const start = row.start - hours * 3600000, end = row.end - hours * 3600000;
+        if (new Date(start).getFullYear() < 2000 || new Date(end).getFullYear() > 2100) throw new Error("Adjustment exceeds the supported date range.");
+        result[row.id] = {start,end};
+    }
+    return result;
+}
+function plannerTryFermentAdjustment(key,bake,settings,overrides,availability,rows,stageId,hours){
+    const row=rows.find(r=>r.id===stageId);
+    if(!row||!Number.isFinite(hours))throw new Error("Invalid fermentation adjustment.");
+    const duration=row.end-row.start;
+    const target=Math.max(row.minimum||0,Math.min(row.maximum||720*3600000,duration+hours*3600000));
+    const change=(target-duration)/3600000;
+    if(Math.abs(change)<1/3600000)return {accepted:false,message:"Already at the fermentation limit."};
+    const attempt=amount=>{
+        try{return plannerExactFermentAdjustment(key,bake,settings,overrides,availability,rows,stageId,amount);}
+        catch(error){return {accepted:false,message:error.message};}
+    };
+    const full=attempt(change);
+    if(full.accepted)return full;
+    // Find the largest feasible partial step, checking one-minute increments.
+    const minutes=Math.ceil(Math.abs(change)*60);
+    for(let step=minutes-1;step>=1;step--){
+        const amount=Math.sign(change)*step/60;
+        if(Math.abs(amount)>=Math.abs(change))continue;
+        const result=attempt(amount);
+        if(result.accepted){result.message="Adjusted by "+Number(Math.abs(amount).toFixed(4))+" hours to the nearest available limit.";return result;}
+    }
+    return {accepted:false,message:"No further change fits your available hours and fermentation limits. Schedule unchanged."};
+}
+
+function plannerExactFermentAdjustment(key,bake,settings,overrides,availability,rows,stageId,hours){
+    const index=rows.findIndex(row=>row.id===stageId);
+    if(index<0||!Number.isFinite(hours))throw new Error("Select a valid fermentation adjustment.");
+    const before=rows[index];
+    const duration=before.end-before.start;
+    const requested=Math.max(before.minimum||0,Math.min(before.maximum||720*3600000,duration+hours*3600000));
+    hours=(requested-duration)/3600000;
+    if(Math.abs(hours)<1/3600000)return {accepted:false,message:"Already at the fermentation limit."};
+    const delta=hours*3600000;
+    const target=before.end-before.start+delta;
+    if(target<(before.minimum||0)||target>(before.maximum||720*3600000))return {accepted:false,message:"Adjustment exceeds the fermentation minimum or maximum limit. Schedule unchanged."};
+    const bakeRow=rows.find(row=>row.id==="bake");
+    const evaluate=proposed=>{
+        let plan;try{plan=flexiblePizzaPlan(key,bake,settings,proposed,availability);}catch(error){return null;}
+        const after=plan.rows.find(row=>row.id===stageId);
+        if(plan.errors.length||!after||Math.abs(after.end-after.start-target)>1)return null;
+        if(plan.rows.some(row=>row.minimum!==undefined&&row.end-row.start+1<row.minimum))return null;
+        if(plan.rows.some(row=>row.maximum!==undefined&&row.end-row.start-1>row.maximum))return null;
+        if(plan.rows.some(row=>row.active&&!row.fixed&&!plannerInsideWindow(row.start,row.end,availability)))return null;
+        const newBake=plan.rows.find(row=>row.id==="bake");
+        if(!newBake||newBake.start!==bakeRow.start)return null;
+        return {accepted:true,overrides:proposed,message:"Fermentation "+(hours<0?"shortened":"extended")+" by "+Math.abs(hours)+" hour(s). Bake time preserved."};
+    };
+    // Prefer the existing start-only strategy, then try the end and shared moves.
+    const original=plannerShiftCold(rows,hours,overrides,stageId);
+    const first=evaluate(original);
+    if(first)return first;
+    const candidates=[delta,0];
+    const count=Math.ceil(Math.abs(delta)/60000);
+    for(let step=1;step<count;step+=1)candidates.push(delta*step/count);
+    for(const endShift of candidates){
+        const startShift=endShift-delta;
+        const proposed={...overrides};
+        rows.forEach((row,i)=>{
+            if(!row.active||row.fixed)return;
+            const shift=i<index?startShift:endShift;
+            proposed[row.id]={start:row.start+shift,end:row.end+shift};
+        });
+        const result=evaluate(proposed);
+        if(result)return result;
+    }
+    return {accepted:false,message:"Cannot fit this adjustment within your available hours and fermentation limits. Schedule unchanged."};
+}
+function plannerWindowsAt(timestamp, availability) {
+    const date = new Date(timestamp);
+    const rule = availability[date.getDay() === 0 || date.getDay() === 6 ? "weekend" : "weekday"];
+    if (!rule || rule.enabled === false) return [];
+    const ranges = rule.ranges || [{start:rule.start,end:rule.end}];
+    return ranges.map(range => {
+        const start = new Date(date), end = new Date(date);
+        start.setHours(Math.floor(range.start/60),range.start%60,0,0);
+        end.setHours(Math.floor(range.end/60),range.end%60,0,0);
+        return {start:+start,end:+end};
+    });
+}
+function plannerInsideWindow(start,end,availability) {
+    if (!availability || !availability.enabled) return true;
+    return plannerWindowsAt(start,availability).some(w => start >= w.start && end <= w.end);
+}
+function plannerLatestWindow(deadline,duration,availability) {
+    if (!availability || !availability.enabled) return {end:deadline,found:true};
+    const day = new Date(deadline); day.setHours(12,0,0,0);
+    for(let count=0;count<15;count+=1){
+        const windows=plannerWindowsAt(+day,availability).sort((a,b)=>b.end-a.end);
+        for(const w of windows){const finish=Math.min(deadline,w.end);if(finish-duration>=w.start)return {end:finish,found:true};}
+        day.setDate(day.getDate()-1);
+    }
+    return {end:deadline,found:false};
+}
+function flexiblePizzaPlan(key,bake,settings={},overrides={},availability=null){
+    const initial=plannerInitialPlan(key,bake,settings,overrides,availability);
+    const invalid=plan=>plan.rows.some(r=>r.minimum!==undefined&&(r.end-r.start<r.minimum-1||r.end-r.start>r.maximum+1));
+    if(!invalid(initial))return initial;
+    const ordered=[...initial.rows].sort((a,b)=>a.order-b.order);
+    const groups=[];
+    let current=null;
+    for(const row of ordered){
+        if(row.id==='bake')break;
+        if(row.minimum!==undefined){if(current)current.gap=row;current=null;}
+        else if(row.active){if(!current){current={tasks:[],gap:null};groups.push(current);}current.tasks.push(row);}
+    }
+    const proposed={...overrides};let attempts=0;
+    const search=(index,nextStart)=>{
+        if(index<0)return true;
+        if(++attempts>20000)return false;
+        const group=groups[index],gap=group.gap;
+        const low=nextStart-(gap?gap.maximum:0),high=nextStart-(gap?gap.minimum:0);
+        const length=group.tasks.reduce((sum,r)=>sum+r.end-r.start,0);
+        const preferred=nextStart-(gap?Math.min(gap.maximum,Math.max(gap.minimum,gap.target)):0);
+        const candidates=[];
+        const add=(lo,hi)=>{if(lo>hi)return; candidates.push(Math.max(lo,Math.min(hi,preferred)),hi,lo);};
+        if(!availability||!availability.enabled)add(low,high);
+        else{
+            const day=new Date(high);day.setHours(12,0,0,0);
+            for(let count=0;count<33&&+day>low-86400000;count++,day.setDate(day.getDate()-1)){
+                for(const w of plannerWindowsAt(+day,availability))add(Math.max(low,w.start+length),Math.min(high,w.end));
+            }
+        }
+        for(const end of [...new Set(candidates)].sort((a,b)=>Math.abs(a-preferred)-Math.abs(b-preferred))){
+            let cursor=end;
+            for(let j=group.tasks.length-1;j>=0;j--){const r=group.tasks[j];proposed[r.id]={start:cursor-(r.end-r.start),end:cursor};cursor=proposed[r.id].start;}
+            if(search(index-1,cursor))return true;
+        }
+        return false;
+    };
+    const bakeRow=initial.rows.find(r=>r.id==='bake');
+    if(search(groups.length-1,bakeRow.start)){
+        const repaired=plannerInitialPlan(key,bake,settings,proposed,availability);
+        if(!invalid(repaired)&&!repaired.errors.length){repaired.warnings.push('Preparation times recalculated to enforce fermentation limits.');return repaired;}
+    }
+    throw new Error('No schedule found within your fermentation limits and available hours. Change availability, bake time, or fermentation limits. No over-limit schedule is allowed.');
+}
+
+function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, availability = null) {
+    const bake = new Date(bakeTime).getTime();
+    if (!Number.isFinite(bake)) throw new Error("Choose a valid bake date and time.");
+    const minute = 60000;
+    const warnings = [];
+    const errors = [];
+    const adjusted = [];
+    const overrides = {};
+    Object.entries(suppliedOverrides).forEach(([id, value]) => {
+        if (value && Number.isFinite(Number(value.start)) && Number.isFinite(Number(value.end))) {
+            overrides[id] = {start: Number(value.start), end: Number(value.end)};
+        }
+    });
+    // Migrate old duplicate pull/portion controls to the single combined action.
+    if ((key === "type2" || key === "coldFerment") && overrides.pull && !overrides.portion) {
+        overrides.portion = {start: overrides.pull.start, end: overrides.pull.start + Number(settings.ballMinutes) * minute};
+    }
+    if (key === "type1" || key === "type2" || key === "coldFerment") delete overrides.pull;
+    const minutes = (id, fallback) => {
+        const value = settings[id] === undefined ? fallback : Number(settings[id]);
+        if (!Number.isFinite(value) || value < 0 || value > 43200) throw new Error("Check the duration for " + id + ".");
+        return value * minute;
+    };
+    const task = (id, title, length, note) => ({id, title, length, note, active: true});
+    const gap = (id, title, length, note) => ({id, title, length, note, active: false});
+    const group = (tasks, fixed = false) => ({tasks, fixed});
+    const make = task("make", "Make dough", minutes("makeMinutes", 110), "Includes mixing, covered rests, stretch-and-folds, and development. Follow the recipe instructions.");
+    const portion = task("portion", "Portion and ball dough", minutes("ballMinutes", 15), "Divide, create surface tension, and place the dough balls in lightly oiled covered containers.");
+    const cold = gap("cold", key === "type2" || key === "coldFerment" ? "Refrigerated bulk fermentation" : "Refrigerated dough balls", minutes("coldMinutes", 2880), "Unattended time. Actual duration adjusts around your working times.");
+    const warm = gap("warm", "Warm-up / final proof", minutes("warmMinutes", 240), "Unattended time. Assess dough readiness rather than relying on the clock alone.");
+    const pull = task("pull", "Pull dough balls from refrigerator", 0, "Remove the covered dough balls; the warm-up period starts here.");
+    const bulk = gap("bulk", "Room-temperature bulk fermentation", minutes("bulkMinutes", 720), "Unattended time. The next action ends this bulk-fermentation period.");
+    const sequence = [];
+    if (key === "poolishPizza") {
+        sequence.push(group([task("poolish", "Make poolish", minutes("poolishMixMinutes", 5), "Mix the poolish ingredients and cover.")]),
+            gap("poolishFerment", "Poolish fermentation", minutes("poolishMinutes", 720), "Unattended time before making the final dough."),
+            group([make, portion]), cold, group([pull]), warm);
+    } else if (key === "type1") {
+        sequence.push(group([make]), bulk, group([portion]), warm);
+    } else if (key === "type2") {
+        portion.title = "Pull from refrigerator, portion and ball";
+        portion.note = "Remove the bulk dough, divide, ball, and cover. This single action starts the final-proof period after balling.";
+        sequence.push(group([make]), bulk,
+            group([task("refrigerate", "Put bulk dough in refrigerator", 0, "Cover and refrigerate the bulk dough. This ends room-temperature bulk fermentation.")]),
+            cold, group([portion]), warm);
+    } else if (key === "coldFerment") {
+        portion.title = "Pull from refrigerator, portion and ball";
+        portion.note = "Remove the bulk dough, divide, ball, and cover. No separate refrigerator-removal action is needed.";
+        make.note += " Cover and refrigerate immediately after development.";
+        sequence.push(group([make]), cold, group([portion]), warm);
+    } else if (key === "grinderRoll") {
+        warm.title = "Remove from refrigerator and warm dough";
+        warm.length = minutes("warmMinutes", 30);
+        sequence.push(group([make, portion]), cold, group([pull]), warm,
+            group([task("shape", "Shape rolls and apply sesame seeds", minutes("shapeMinutes", 20), "Flatten, fold, seal, shape, dampen, and apply sesame seeds as described in the recipe.")]),
+            gap("proof", "Proof shaped rolls", minutes("proofMinutes", 60), "Cover and proof on a supported cloth or couche."),
+            group([task("score", "Transfer and score rolls", minutes("scoreMinutes", 5), "Transfer to parchment and make four shallow scores on each loaf.")], true));
+    } else throw new Error("This recipe does not have a scheduler.");
+
+    const minimumFields={bulk:"minimumBulkHours",cold:"minimumColdHours",poolishFerment:"minimumPoolishHours",warm:"minimumWarmHours",proof:"minimumProofHours"};
+    for(const block of sequence.filter(block=>!block.tasks)){
+        const field=minimumFields[block.id];
+        const value=settings[field]===undefined?block.length/3600000:Number(settings[field]);
+        if(!Number.isFinite(value)||value<0.01||value>720)throw new Error("Minimum fermentation must be between 0.01 and 720 hours.");
+        block.minimum=value*3600000;
+        const maximumField=field.replace("minimum","maximum");
+        const maximum=settings[maximumField]===undefined?720:Number(settings[maximumField]);
+        if(!Number.isFinite(maximum)||maximum<value||maximum>720)throw new Error(block.title+": maximum hours must be at least the minimum and no more than 720.");
+        block.maximum=maximum*3600000;
+    }
+    let cursor = bake;
+    for (let index = sequence.length - 1; index >= 0; index -= 1) {
+        const block = sequence[index];
+        if (!block.tasks) {
+            cursor -= Math.min(block.maximum,Math.max(block.length,block.minimum));
+            continue;
+        }
+        const following=sequence[index+1];
+        if(following&&!following.tasks){
+            const next=sequence[index+2];
+            const gapEnd=next?next.tasks[0].start:bake;
+            const latest=gapEnd-following.minimum;
+            const lastTask=block.tasks[block.tasks.length-1];
+            const customEnd=overrides[lastTask.id]?overrides[lastTask.id].end:cursor;
+            if(customEnd>latest){
+                const delta=latest-customEnd;
+                for(const row of block.tasks){if(overrides[row.id])overrides[row.id]={start:overrides[row.id].start+delta,end:overrides[row.id].end+delta};}
+                cursor=Math.min(cursor,latest);
+                adjusted.push("Protected minimum for "+following.title);
+            }
+        }
+        // Custom times must also respect availability when automatic fitting is enabled.
+        if (!block.fixed && availability && availability.enabled) {
+            let end = cursor;
+            const proposed = [];
+            for (let j = block.tasks.length - 1; j >= 0; j -= 1) {
+                const row = block.tasks[j], custom = overrides[row.id];
+                const finish = custom ? custom.end : end;
+                const start = custom ? custom.start : finish - row.length;
+                proposed.unshift({id:row.id,start,end:finish});
+                end = start;
+            }
+            if (proposed.some(row => !plannerInsideWindow(row.start,row.end,availability))) {
+                const start = Math.min(...proposed.map(row=>row.start));
+                const finish = Math.max(...proposed.map(row=>row.end));
+                const fit = plannerLatestWindow(Math.min(cursor,finish),finish-start,availability);
+                if (fit.found) {
+                    const delta = fit.end-finish;
+                    proposed.forEach(row=>{overrides[row.id]={start:row.start+delta,end:row.end+delta};});
+                    adjusted.push(block.tasks.map(row=>row.title).join(" + "));
+                    warnings.push("Adjusted preparation to available hours; review actual fermentation durations.");
+                } else errors.push("No available window can contain " + block.tasks.map(row=>row.title).join(" + ") + ". Widen your availability.");
+            }
+        }
+        const pinned = block.tasks.some(row => overrides[row.id]);
+        const totalLength = block.tasks.reduce((sum, row) => sum + row.length, 0);
+        if (!pinned && !block.fixed) {
+            const fit = plannerLatestWindow(cursor, totalLength, availability);
+            if (!fit.found) warnings.push("No available window can contain " + block.tasks.map(row => row.title).join(" + ") + ". Widen your hours or shorten the task.");
+            if (fit.end !== cursor) adjusted.push(block.tasks.map(row => row.title).join(" + "));
+            cursor = fit.end;
+        }
+        for (let j = block.tasks.length - 1; j >= 0; j -= 1) {
+            const row = block.tasks[j];
+            const custom = overrides[row.id];
+            row.end = custom ? custom.end : cursor;
+            row.start = custom ? custom.start : row.end - row.length;
+            row.custom = !!custom;
+            cursor = row.start;
+        }
+    }
+    const rows = [];
+    sequence.forEach((block, index) => {
+        if (block.tasks) {
+            block.tasks.forEach((row, taskIndex) => {
+                if (taskIndex > 0) {
+                    const previous = block.tasks[taskIndex - 1];
+                    if (row.start > previous.end) rows.push({id: "wait_" + row.id, title: "Unassigned rest / waiting", start: previous.end, end: row.start, active: false, note: "Created by your custom working times. This is not an added recipe requirement."});
+                    if (row.start < previous.end) errors.push(previous.title + " overlaps " + row.title + ".");
+                }
+                rows.push(row);
+            });
+        } else {
+            const before = sequence[index - 1].tasks;
+            const after = sequence[index + 1] ? sequence[index + 1].tasks : null;
+            block.start = before[before.length - 1].end;
+            block.end = after ? after[0].start : bake;
+            block.target = block.length;
+            rows.push(block);
+        }
+    });
+    const last = rows[rows.length - 1];
+    if (last.end < bake) rows.push({id: "wait_bake", title: "Wait before loading oven", start: last.end, end: bake, active: false, note: "Created by a custom finish time. The bake target stays fixed."});
+    if (last.end > bake) errors.push(last.title + " finishes after bake time.");
+    const bakeRow = {id: "bake", title: key === "grinderRoll" ? "Load rolls: bake covered" : "Bake pizza: load first pizza", start: bake, end: bake, active: true, fixed: true, note: "Fixed oven-loading target."};
+    if (key === "grinderRoll") {
+        bakeRow.title="Bake rolls";
+        bakeRow.end=bake+minutes("coveredMinutes",12)+minutes("uncoveredMinutes",13);
+        bakeRow.note="Bake covered for "+(minutes("coveredMinutes",12)/minute)+" minutes, then uncovered for "+(minutes("uncoveredMinutes",13)/minute)+" minutes.";
+        rows.push(bakeRow);
+    } else rows.push(bakeRow);
+    rows.forEach(row => {
+        if (row.end < row.start) errors.push(row.title + ": finish is before start. Adjust adjacent working times.");
+        if (row.active && !plannerInsideWindow(row.start, row.end, availability)) warnings.push(row.title + " is outside your available hours" + (row.custom ? "; your custom time was kept." : ". Bake-related tasks stay tied to bake time."));
+        if (row.target !== undefined && row.end >= row.start) {
+            if(row.maximum!==undefined&&row.end-row.start-1>row.maximum)errors.push(row.title+" exceeds its maximum duration. Adjust available hours, preparation times, or the maximum before exporting.");
+            if(row.minimum!==undefined && row.end-row.start+1<row.minimum)errors.push(row.title+" is below its minimum duration.");
+            const actual = (row.end - row.start) / minute;
+            const target = row.target / minute;
+            if (Math.abs(actual - target) > 1) warnings.push(row.title + ": actual " + (actual / 60).toFixed(2) + " hours; guideline " + (target / 60).toFixed(2) + " hours.");
+        }
+    });
+    const coldRow = rows.find(row => row.id === "cold");
+    if (coldRow && coldRow.end >= coldRow.start) {
+        const hours = (coldRow.end - coldRow.start) / 3600000;
+        const low = key === "type2" ? 12 : key === "poolishPizza" ? 24 : 48;
+        const high = key === "type2" ? 48 : 72;
+        if (hours < low || hours > high) warnings.push("Refrigeration is outside the recipe's " + low + "-" + high + " hour range.");
+    }
+    const bulkRow = rows.find(row => row.id === "bulk");
+    if (bulkRow && key === "type1") {
+        const hours = (bulkRow.end - bulkRow.start) / 3600000;
+        if (hours < 12 || hours > 18) warnings.push("Room-temperature bulk is outside the recipe's 12-18 hour range.");
+    }
+    // Sort parallel tasks into their true chronological position.
+    rows.forEach((row, index) => { row.order = index; });
+    rows.sort((a, b) => a.start - b.start || a.order - b.order);
+    if(key==="grinderRoll"){
+        const pullIndex=rows.findIndex(r=>r.id==="pull");if(pullIndex>=0)rows.splice(pullIndex,1);
+    }
+    return {rows, warnings: [...new Set(warnings)], errors: [...new Set(errors)], adjusted};
+}
+
+(function () {
+ "use strict";
+ const root=document.getElementById("bakePlanner"), $=id=>root.querySelector("#"+id);
+ const configs={grinderRoll:{bulkMinutes:0,"coldMinutes":3600,"warmMinutes":30,"makeMinutes":110,"shapeMinutes":20,"proofMinutes":60,"scoreMinutes":5,"coveredMinutes":12,"uncoveredMinutes":13,"ballMinutes":15,"minimumColdHours":48,"minimumWarmHours":0.5,"minimumProofHours":1,"maximumColdHours":80,"maximumWarmHours":1,"maximumProofHours":1.5},type1:{bulkMinutes:900,coldMinutes:0,warmMinutes:180,makeMinutes:110,maximumBulkHours:28,maximumWarmHours:6},type2:{"makeMinutes":110,"portionMinutes":15,"bulkMinutes":720,"coldMinutes":1440,"warmMinutes":240,"minimumBulkHours":9,"minimumColdHours":15,"minimumWarmHours":3,"maximumBulkHours":15,"maximumColdHours":80,"maximumWarmHours":7,"ballMinutes":15},coldFerment:{bulkMinutes:0,"coldMinutes":2880,"warmMinutes":240,"makeMinutes":110,"ballMinutes":15,"minimumColdHours":48,"minimumWarmHours":4,"maximumColdHours":80,"maximumWarmHours":7},poolishPizza:{bulkMinutes:0,"coldMinutes":2880,"warmMinutes":240,"makeMinutes":110,"ballMinutes":15,"poolishMixMinutes":5,"poolishMinutes":720,"minimumColdHours":48,"minimumPoolishHours":9,"minimumWarmHours":4,"maximumColdHours":80,"maximumPoolishHours":15,"maximumWarmHours":7}};
+ const defs=[["shapeMinutes","Shape and seed rolls (minutes)",20,1,120],["proofMinutes","Shaped-roll proof guideline (minutes)",60,0,480],["scoreMinutes","Transfer and score rolls (minutes)",5,0,60],["coveredMinutes","Covered bake guideline (minutes)",12,1,60],["uncoveredMinutes","Uncovered bake guideline (minutes)",13,1,60],["makeMinutes","Make dough, including rests and folds (minutes)",110,1,480],["ballMinutes","Portion and ball (minutes)",15,1,120],["poolishMixMinutes","Make poolish (minutes)",5,1,120],["poolishMinutes","Poolish fermentation guideline (hours)",720,1,2880],["bulkMinutes","Room-temperature bulk guideline (hours)",720,0,2880],["coldMinutes","Refrigeration guideline (hours)",2880,0,10080],["warmMinutes","Final proof guideline (hours)",240,0,1440]];
+ let key="",overrides={},rows=[];
+ const fermentFields={bulk:"bulkMinutes",cold:"coldMinutes",poolishFerment:"poolishMinutes",warm:"warmMinutes",proof:"proofMinutes"};
+ const minimumIds={bulk:"minimumBulkHours",cold:"minimumColdHours",poolishFerment:"minimumPoolishHours",warm:"minimumWarmHours",proof:"minimumProofHours"};
+ for(const [stage,id] of Object.entries(minimumIds)){
+  const field=fermentFields[stage];
+  const original=defs.find(d=>d[0]===field);
+  defs.push([id,"Minimum "+({bulk:"room-temperature bulk",cold:"refrigeration",poolishFerment:"poolish fermentation",warm:"warm-up / final proof",proof:"shaped-roll proof"}[stage])+" (hours)",original[2]/60,0.01,720]);
+ }
+ const maximumIds=Object.fromEntries(Object.entries(minimumIds).map(([stage,id])=>[stage,id.replace("minimum","maximum")]));
+ for(const [stage,id] of Object.entries(maximumIds)){
+  const label=defs.find(d=>d[0]===minimumIds[stage])[1].replace("Minimum","Maximum");
+  defs.push([id,label,"",0.01,720]);
+ }
+ const hourField=id=>["bulkMinutes","coldMinutes","warmMinutes","poolishMinutes"].includes(id);
+ const pad=x=>String(x).padStart(2,"0");
+ const local=t=>{const d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());};
+ const format=t=>new Intl.DateTimeFormat(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(t));
+ const button=(text,action)=>{const b=document.createElement("button");b.type="button";b.className="secondary";b.textContent=text;b.addEventListener("click",action);return b;};
+ function persist(){try{localStorage.setItem("flexiblePizzaPlanner_"+key,JSON.stringify({overrides,settings:settings(),bake:$("bakeAt").value}));}catch(error){/* Usable without local storage. */}}
+ function settings(){
+  const result={};
+  defs.forEach(([id,label,fallback,min,max])=>{
+   const input=$("flex_"+id);
+   // Inactive recipe stages must not prevent an unrelated schedule from rendering.
+   if(input.closest(".field").classList.contains("hidden"))return;
+   if(Object.values(maximumIds).includes(id)&&input.value.trim()==="")return;
+   const n=Number(input.value), lower=hourField(id)?min/60:min, upper=hourField(id)?max/60:max;
+   if(input.value.trim()===""||!Number.isFinite(n)||n<lower||n>upper)throw new Error("Check "+label.toLowerCase()+" ("+lower+"-"+upper+").");
+   result[id]=hourField(id)?n*60:n;
+  });
+  return result;
+ }
+ defs.forEach(([id,label,value,min,max])=>{const wrap=document.createElement("div");wrap.className="field";wrap.dataset.setting=id;const lab=document.createElement("label");lab.htmlFor="flex_"+id;lab.textContent=label;const input=document.createElement("input");Object.assign(input,{id:lab.htmlFor,type:"number",min:String(min),max:String(hourField(id)?max/60:max),value:String(hourField(id)?value/60:value),step:hourField(id)||(Object.values(minimumIds).includes(id)||Object.values(maximumIds).includes(id))?"any":"1"});input.addEventListener("change",render);wrap.append(lab,input);if(Object.values(maximumIds).includes(id))input.placeholder="Optional; blank = 720-hour technical limit";$("plannerFields").appendChild(wrap);});
+ function shift(row,hours){overrides[row.id]={start:row.start+hours*3600000,end:row.end+hours*3600000};render();}
+ function readAvailability(){
+  const a={enabled:$("availableEnabled").checked};
+  const parse=id=>{const v=$(id).value;if(!/^\d{2}:\d{2}$/.test(v))throw new Error("Enter valid available hours.");const [h,m]=v.split(":").map(Number);if(h>23||m>59)throw new Error("Enter valid available hours.");return h*60+m;};
+  for(const group of ["weekday","weekend"]){
+   const enabled=$(group+"Available").checked;
+   const ranges=[{start:parse(group+"Start"),end:parse(group+"End")}];
+   if(group==="weekday"&&!$("weekdayRange2").classList.contains("hidden"))ranges.push({start:parse("weekdayStart2"),end:parse("weekdayEnd2")});
+   if(a.enabled&&enabled&&ranges.some(r=>r.end<=r.start))throw new Error("For "+group+" hours, finish must be later than start on the same day.");
+   const sorted=[...ranges].sort((x,y)=>x.start-y.start);
+   if(a.enabled&&enabled&&sorted.length===2&&sorted[0].end>sorted[1].start)throw new Error("Weekday time ranges must not overlap.");
+   a[group]={enabled,ranges,start:ranges[0].start,end:ranges[0].end};
+  }
+  if(a.enabled&&!a.weekday.enabled&&!a.weekend.enabled)throw new Error("Enable weekdays or weekends, or turn off automatic fitting.");
+  return a;
+ }
+ function saveAvailability(){try{localStorage.setItem("doughAvailableHoursV2",JSON.stringify(readAvailability()));}catch(error){}}
+ function loadAvailability(){
+  let a=null;try{a=JSON.parse(localStorage.getItem("doughAvailableHoursV2")||localStorage.getItem("doughAvailableHoursV1")||"null");}catch(error){}
+  const valid=r=>r&&Number.isInteger(r.start)&&Number.isInteger(r.end)&&r.start>=0&&r.end<=1439&&r.end>r.start;
+  const setRange=(group,r)=>{$(group+"Start").value=pad(Math.floor(r.start/60))+":"+pad(r.start%60);$(group+"End").value=pad(Math.floor(r.end/60))+":"+pad(r.end%60);};
+  const toggleSecond=show=>{$("weekdayRange2").classList.toggle("hidden",!show);$("addWeekdayRange").textContent=show?"Remove second time range":"+ Add second time range";$("addWeekdayRange").setAttribute("aria-expanded",String(show));};
+  if(a&&typeof a==="object"){
+   $("availableEnabled").checked=!!a.enabled;
+   for(const group of ["weekday","weekend"]){const rule=a[group];if(!rule)continue;const ranges=Array.isArray(rule.ranges)?rule.ranges:[rule];if(valid(ranges[0])){$(group+"Available").checked=rule.enabled!==false;setRange(group,ranges[0]);}if(group==="weekday"&&valid(ranges[1])){const r=ranges[1];$("weekdayStart2").value=pad(Math.floor(r.start/60))+":"+pad(r.start%60);$("weekdayEnd2").value=pad(Math.floor(r.end/60))+":"+pad(r.end%60);toggleSecond(true);}}
+  }
+  $("addWeekdayRange").addEventListener("click",()=>{toggleSecond($("weekdayRange2").classList.contains("hidden"));saveAvailability();render();});
+  for(const id of ["availableEnabled","weekdayAvailable","weekdayStart","weekdayEnd","weekdayStart2","weekdayEnd2","weekendAvailable","weekendStart","weekendEnd"]){$(id).addEventListener("change",()=>{saveAvailability();render();});}
+ }
+
+ function vpCompressedDuration(milliseconds){return vpDuration(milliseconds);}
+ function vpDuration(milliseconds){const minutes=milliseconds/60000,hours=minutes/60;return minutes<60?Number(minutes.toFixed(2))+" min":Number(hours.toFixed(2))+" h"+(hours>24?" ("+Number((hours/24).toFixed(2))+" days)":"");}
+ let vpSelected=null,vpUndoState=null;
+ function vpSetBake(timestamp){
+  const date=new Date(timestamp);
+  if(!Number.isFinite(+date)||date.getFullYear()<2000||date.getFullYear()>2100){vpNotify("Choose a valid bake date between 2000 and 2100.");return false;}
+  try{
+   const candidate=flexiblePizzaPlan(key,date,settings(),JSON.parse(JSON.stringify(overrides)),readAvailability());
+   if(candidate.errors.length){vpNotify("Bake time unchanged: "+candidate.errors[0]);return false;}
+   vpUndoState={key,bake:$("bakeAt").value,overrides:JSON.parse(JSON.stringify(overrides))};
+   $("bakeAt").value=local(timestamp);render();vpNotify("Bake time changed by you. Preparation recalculated within your limits.");return true;
+  }catch(error){vpNotify("Bake time unchanged: "+error.message);return false;}
+ }
+
+ const vpRead=()=>{try{return JSON.parse(localStorage.getItem("doughTimelineViewV1")||"{}");}catch(error){return {};}};
+ const vpSaved=vpRead();
+ if(vpSaved.compact==="actual")$("vpCompact").value="actual";
+ if(["timeline","both","steps"].includes(vpSaved.view))$("vpView").value=vpSaved.view;
+ if(["18","36","72"].includes(vpSaved.scale))$("vpScale").value=vpSaved.scale;
+ const vpSave=()=>{try{localStorage.setItem("doughTimelineViewV1",JSON.stringify({view:$("vpView").value,scale:$("vpScale").value,compact:$("vpCompact").value}));}catch(error){}};
+ const vpNotify=text=>{$("vpMessage").textContent=text;};
+ function vpCommit(proposed,required){
+  try{
+   const candidate=plannerInitialPlan(key,$("bakeAt").value,settings(),JSON.parse(JSON.stringify(proposed)),readAvailability());
+   const problems=[...candidate.errors];
+   if(candidate.rows.some(r=>r.minimum!==undefined&&(r.end-r.start<r.minimum-1||r.end-r.start>r.maximum+1)))problems.push("Fermentation limits would be exceeded.");
+   if(candidate.rows.some(r=>r.active&&!r.fixed&&!plannerInsideWindow(r.start,r.end,readAvailability())))problems.push("Preparation must fit your available hours.");
+   if(required){const actual=candidate.rows.find(r=>r.id===required.id);if(!actual||Math.abs(actual.start-required.start)>1||Math.abs(actual.end-required.end)>1)problems.push("This position cannot fit the schedule.");}
+   if(problems.length){vpNotify("Not moved: "+problems[0]);return false;}
+   vpUndoState={key,overrides:JSON.parse(JSON.stringify(overrides))};overrides=proposed;render();vpNotify("Schedule updated. Bake time and fermentation limits preserved.");return true;
+  }catch(error){vpNotify("Not moved: "+error.message);return false;}
+ }
+ function vpDragTarget(row,rawTime,resize,windows,xAt){
+  let target=Math.round(rawTime/60000)*60000;
+  if(!resize&&row.id!=="bake"){
+   const length=row.end-row.start;
+   const candidates=[];
+   for(const w of windows){
+    if(w.end-w.start<length)continue;
+    candidates.push(w.start,w.end-length);
+   }
+   let bestDistance=9;
+   for(const candidate of candidates){
+    const distance=Math.abs(xAt(candidate)-xAt(rawTime));
+    if(distance<bestDistance){target=candidate;bestDistance=distance;}
+   }
+  }
+  return target;
+ }
+ function vpMove(row,minutes){
+  const delta=minutes*60000;
+  if(row.id==="bake")return vpSetBake(row.start+delta);
+  const proposed={...overrides,[row.id]:{start:row.start+delta,end:row.end+delta}};
+  return vpCommit(proposed,{id:row.id,start:row.start+delta,end:row.end+delta});
+ }
+ function vpResize(row,hours){
+  try{
+   const result=plannerTryFermentAdjustment(key,$("bakeAt").value,settings(),overrides,readAvailability(),rows,row.id,hours);
+   if(!result.accepted){vpNotify(result.message);return;}
+   vpUndoState={key,overrides:JSON.parse(JSON.stringify(overrides))};overrides=result.overrides;render();vpNotify("Fermentation adjusted within available hours and limits.");
+  }catch(error){vpNotify(error.message);}
+ }
+ function vpEditor(){
+  const editor=$("vpEditor");editor.replaceChildren();
+  const row=rows.find(r=>r.id===vpSelected);editor.hidden=!row;if(!row)return;
+  const title=document.createElement("strong");title.textContent=row.title;editor.append(title);
+  const info=document.createElement("p");info.textContent=format(row.start)+" to "+format(row.end);editor.append(info);
+  const controls=document.createElement("div");controls.className="vp-edit-row";editor.append(controls);
+  if(row.id==="bake"){
+   const label=document.createElement("label");label.textContent="Bake date and time";
+   const input=document.createElement("input");input.type="datetime-local";input.value=local(row.start);label.append(input);controls.append(label);
+   controls.append(button("Apply bake time",()=>vpSetBake(+new Date(input.value))),button("15 min earlier",()=>vpSetBake(row.start-900000)),button("15 min later",()=>vpSetBake(row.start+900000)));
+   return;
+  }
+  if(row.fixed)return;
+  if(row.active){
+   const label=document.createElement("label");label.textContent="Start time";
+   const input=document.createElement("input");input.type="datetime-local";input.value=local(row.start);label.append(input);controls.append(label);
+   controls.append(button("Apply time",()=>{const start=+new Date(input.value);if(!Number.isFinite(start)||new Date(start).getFullYear()<2000||new Date(start).getFullYear()>2100){vpNotify("Choose a valid date between 2000 and 2100.");return;}vpMove(row,(start-row.start)/60000);}),button("15 min earlier",()=>vpMove(row,-15)),button("15 min later",()=>vpMove(row,15)));
+  }else if(row.minimum!==undefined){
+   const label=document.createElement("label");label.textContent="Duration (hours)";
+   const input=document.createElement("input");input.type="number";input.step="any";input.min=String(row.minimum/3600000);input.max=String(row.maximum/3600000);input.value=String(Number(((row.end-row.start)/3600000).toFixed(4)));label.append(input);controls.append(label);
+   controls.append(button("Apply duration",()=>{const value=Number(input.value);if(input.value.trim()===""||!Number.isFinite(value)||value<row.minimum/3600000||value>row.maximum/3600000){vpNotify("Enter a duration within the displayed minimum and maximum.");return;}vpResize(row,value-(row.end-row.start)/3600000);}),button("1 hour less",()=>vpResize(row,-1)),button("1 hour more",()=>vpResize(row,1)));
+   const limits=document.createElement("p");limits.textContent="Min "+Number((row.minimum/3600000).toFixed(2))+" h | Max "+Number((row.maximum/3600000).toFixed(2))+" h";editor.append(limits);
+  }
+ }
+ function vpRender(){
+  const chart=$("vpChart"),scroll=$("vpScroll"),position=scroll.scrollLeft;chart.replaceChildren();
+  const view=$("vpView").value;scroll.hidden=view==="steps";$("plannerTimeline").hidden=view==="timeline";$("vpScale").disabled=view==="steps";
+  $("vpUndo").disabled=!vpUndoState||vpUndoState.key!==key;
+  if(!rows.length){$("vpEditor").hidden=true;$("vpCompressionSummary").textContent="";return;}
+  const scale=Number($("vpScale").value),hour=3600000;
+  const start=Math.floor((Math.min(...rows.map(r=>r.start))-hour)/hour)*hour;
+  const end=Math.ceil((Math.max(...rows.map(r=>r.end))+2*hour)/hour)*hour;
+  const compressed=[];
+  if($("vpCompact").value==="compact"){
+   for(const row of rows.filter(r=>!r.active&&r.end-r.start>12*hour)){
+    const left=row.start+2*hour,right=row.end-2*hour;
+    if(!rows.some(r=>r.active&&r.start<right&&r.end>left))compressed.push({start:left,end:right});
+   }
+  }
+  compressed.sort((a,b)=>a.start-b.start);
+  const cuts=[];for(const c of compressed){const last=cuts[cuts.length-1];if(last&&c.start<=last.end)last.end=Math.max(last.end,c.end);else cuts.push({...c});}
+  let overviewStretch=1;
+  const xAt=time=>{let pixels=(time-start)/hour*scale;for(const c of cuts){const natural=(c.end-c.start)/hour*scale;const displayed=Math.min(natural,56);pixels-=Math.max(0,Math.min(time,c.end)-c.start)/(c.end-c.start)*(natural-displayed);}return pixels*overviewStretch;};
+  const timeAt=x=>{let lo=start-48*hour,hi=end+48*hour;for(let i=0;i<60;i++){const mid=(lo+hi)/2;if(xAt(mid)<x)lo=mid;else hi=mid;}return (lo+hi)/2;};
+  const measuredLabel=window.innerWidth<551?120:175;
+  const availableWidth=Math.max(80,scroll.clientWidth-measuredLabel-2);
+  overviewStretch=Math.max(1,availableWidth/xAt(end));
+  const width=xAt(end);
+  $("vpCompressionSummary").textContent=cuts.length?"Compressed intervals: "+cuts.map((c,i)=>(i+1)+": "+vpCompressedDuration(c.end-c.start)).join(" | "):"";
+  const labelWidth=window.innerWidth<551?120:175;chart.style.width=(width+labelWidth)+"px";
+  const availability=readAvailability();
+  const windows=[];
+  if(availability.enabled){const day=new Date(start);day.setHours(12,0,0,0);for(let count=0;count<40&&+day<end+86400000;count++,day.setDate(day.getDate()+1))windows.push(...plannerWindowsAt(+day,availability));}
+  const makeLine=(labelText,subtitle,axis=false)=>{
+   const line=document.createElement("div");line.className="vp-line";
+   const label=document.createElement("div");label.className="vp-label";label.textContent=labelText;
+   if(subtitle){const small=document.createElement("small");small.textContent=subtitle;label.append(small);}
+   const track=document.createElement("div");track.className="vp-track"+(axis?" vp-axis":"");track.style.width=width+"px";line.append(label,track);chart.append(line);
+   for(const w of windows){const left=Math.max(start,w.start),right=Math.min(end,w.end);if(right<=left)continue;const shade=document.createElement("span");shade.className="vp-window";shade.style.left=xAt(left)+"px";shade.style.width=(xAt(right)-xAt(left))+"px";track.append(shade);}
+   const interval=scale<30?12:6;
+   for(let time=start;time<=end;time+=hour){const date=new Date(time);if(date.getHours()%interval!==0||cuts.some(c=>time>c.start&&time<c.end))continue;const grid=document.createElement("span");grid.className="vp-grid";grid.style.left=xAt(time)+"px";track.append(grid);if(axis){const tick=document.createElement("span");tick.className="vp-tick";tick.style.left=grid.style.left;tick.textContent=date.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})+" "+date.toLocaleTimeString(undefined,{hour:"numeric"});track.append(tick);}}
+   for(const c of cuts){const mark=document.createElement("span");mark.className="vp-break";mark.style.left=xAt(c.start)+"px";mark.style.width=(xAt(c.end)-xAt(c.start))+"px";mark.textContent="//";mark.title=vpCompressedDuration(c.end-c.start)+" compressed; actual dates and durations are unchanged.";track.append(mark);}
+   return track;
+  };
+  makeLine("Local time",availability.enabled?"Green = available hours":"Availability fitting off",true);
+  for(const row of rows){
+   const duration=Number(((row.end-row.start)/hour).toFixed(2));
+   const track=makeLine(row.title,(duration?vpDuration(row.end-row.start)+" | ":"")+"Start: "+format(row.start));
+   const bar=document.createElement("button");bar.type="button";bar.className="vp-bar "+(row.fixed?"vp-bake vp-fixed":row.active?"vp-action":"vp-ferment");bar.dataset.row=row.id;
+   bar.style.left=xAt(row.start)+"px";bar.style.width=Math.max(14,(xAt(row.end)-xAt(row.start)))+"px";const barText=document.createElement("span");barText.className="vp-bar-text";barText.textContent=duration>0?vpDuration(row.end-row.start):"";bar.append(barText);
+   bar.title=row.title+" | "+format(row.start)+" to "+format(row.end);bar.setAttribute("aria-label",bar.title);bar.setAttribute("aria-pressed",String(vpSelected===row.id));
+   if(!row.active&&row.minimum!==undefined){const handle=document.createElement("span");handle.className="vp-handle";handle.title="Drag to change duration";bar.append(handle);}
+   let dragged=false;
+   bar.addEventListener("click",()=>{if(dragged){dragged=false;return;}vpSelected=row.id;vpRender();});
+   bar.addEventListener("keydown",event=>{if((row.fixed&&row.id!=="bake")||!["ArrowLeft","ArrowRight"].includes(event.key))return;event.preventDefault();const direction=event.key==="ArrowRight"?1:-1;if(row.active)vpMove(row,direction*15);else vpResize(row,direction*0.25);});
+   bar.addEventListener("pointerdown",event=>{
+    const resize=event.target.classList.contains("vp-handle");
+    if((row.fixed&&row.id!=="bake")||(!row.active&&!resize)||event.button!==0)return;
+    const x=event.clientX,originalLeft=parseFloat(bar.style.left),originalWidth=parseFloat(bar.style.width);let delta=0;
+    bar.setPointerCapture(event.pointerId);
+    const move=e=>{const pixels=e.clientX-x;if(Math.abs(pixels)>4)dragged=true;if(!dragged)return;e.preventDefault();const anchor=resize?row.end:row.start;const rawTime=timeAt(xAt(anchor)+pixels);const target=vpDragTarget(row,rawTime,resize,windows,xAt);delta=(target-anchor)/hour;if(resize)bar.style.width=Math.max(14,xAt(row.end+delta*hour)-xAt(row.start))+"px";else bar.style.left=(xAt(row.start+delta*hour))+"px";vpNotify(resize?"Duration: "+vpDuration(row.end-row.start+delta*hour)+"; release to validate.":"Start: "+format(row.start+delta*hour)+"; release to validate.");};
+    const cleanup=()=>{bar.removeEventListener("pointermove",move);bar.removeEventListener("pointerup",up);bar.removeEventListener("pointercancel",cancel);};
+    const up=()=>{cleanup();if(!dragged)return;if(resize)vpResize(row,delta);else vpMove(row,delta*60);if(bar.isConnected){bar.style.left=originalLeft+"px";bar.style.width=originalWidth+"px";}};
+    const cancel=()=>{cleanup();bar.style.left=originalLeft+"px";bar.style.width=originalWidth+"px";};
+    bar.addEventListener("pointermove",move);bar.addEventListener("pointerup",up);bar.addEventListener("pointercancel",cancel);
+   });track.append(bar);
+   const handleSpace=bar.querySelector(".vp-handle")?14:0;
+   if(barText.getBoundingClientRect().width>bar.clientWidth-10-handleSpace)barText.hidden=true;
+  }
+  scroll.scrollLeft=position;vpEditor();
+ }
+ let vpLastWidth=0,vpResizeTimer;
+ const vpObserver=new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(Math.abs(width-vpLastWidth)<1)return;vpLastWidth=width;clearTimeout(vpResizeTimer);vpResizeTimer=setTimeout(()=>{if(rows.length)vpRender();},100);});
+ vpObserver.observe($("vpScroll"));
+ $("vpCompact").addEventListener("change",()=>{vpSave();vpRender();});
+ $("vpView").addEventListener("change",()=>{vpSave();vpRender();});$("vpScale").addEventListener("change",()=>{vpSave();vpRender();});
+ $("vpUndo").addEventListener("click",()=>{if(!vpUndoState||vpUndoState.key!==key)return;overrides=vpUndoState.overrides;if(vpUndoState.bake)$("bakeAt").value=vpUndoState.bake;vpUndoState=null;render();vpNotify("Last timeline edit undone.");});
+
+ function render(){
+  if(!configs[key])return;
+  $("plannerExport").disabled=true;
+  try{
+   const bakeValue=$("bakeAt").value,bake=new Date(bakeValue);if(!bakeValue||!Number.isFinite(+bake)||bake.getFullYear()<2000||bake.getFullYear()>2100)throw new Error("Choose a valid bake date between 2000 and 2100.");
+   const plan=flexiblePizzaPlan(key,bake,settings(),overrides,readAvailability());rows=plan.rows;
+   $("plannerHighlights").replaceChildren();
+   $("plannerTimeline").replaceChildren();
+   rows.forEach(r=>{
+    const item=document.createElement("li");item.className="planner-event"+(r.active?"":" passive");item.dataset.stage=r.id;
+    const title=document.createElement("strong");title.textContent=r.title+(r.custom?" (your time)":r.active?"":" (unattended)");item.appendChild(title);
+    if(r.active&&!r.fixed){
+     const grid=document.createElement("div");grid.className="input-grid";
+     ["start","end"].forEach(which=>{
+      if(which==="end"&&["pull","uncover","refrigerate"].includes(r.id))return;
+      const field=document.createElement("div");field.className="field";const label=document.createElement("label");label.htmlFor="stage_"+r.id+"_"+which;label.textContent=which==="start"?"Start":"Finish";
+      const input=document.createElement("input");Object.assign(input,{id:label.htmlFor,type:"datetime-local",value:local(r[which]),min:"2000-01-01T00:00",max:"2100-12-31T23:59"});
+      input.addEventListener("change",()=>{const value=new Date(input.value).getTime();if(!input.value||!Number.isFinite(value)||new Date(value).getFullYear()<2000||new Date(value).getFullYear()>2100){input.setCustomValidity("Choose a valid date and time.");input.reportValidity();return;}input.setCustomValidity("");const custom={start:r.start,end:r.end};if(which==="start"){custom.start=value;custom.end=value+(r.end-r.start);}else custom.end=value;overrides[r.id]=custom;render();});field.append(label,input);grid.appendChild(field);
+     });item.appendChild(grid);
+     const controls=document.createElement("div");controls.className="button-row";controls.append(button("1 hour earlier",()=>shift(r,-1)),button("1 hour later",()=>shift(r,1)),button("Use calculated time",()=>{delete overrides[r.id];render();}));item.appendChild(controls);
+    }else{const time=document.createElement("p");time.textContent="Start: "+format(r.start)+" | Finish: "+format(r.end);item.appendChild(time);}
+    if(r.id==="cold"||r.id==="bulk"){
+     const controls=document.createElement("div");controls.className="button-row";
+     const feedback=document.createElement("p");feedback.className="install-note";feedback.setAttribute("role","status");feedback.setAttribute("aria-live","polite");
+     const adjust=hours=>{try{
+      const result=plannerTryFermentAdjustment(key,$("bakeAt").value,settings(),overrides,readAvailability(),rows,r.id,hours);
+      if(!result.accepted){feedback.textContent=result.message;return;}
+      overrides=result.overrides;render();
+     }catch(error){feedback.textContent=error.message;}};
+     const less=button("24 hours less",()=>adjust(-24));less.disabled=r.end-r.start<=(r.minimum||0)+1;
+     const more=button("24 hours more",()=>adjust(24));more.disabled=r.end-r.start>=(r.maximum||720*3600000)-1;
+     const lessHour=button("1 hour less",()=>adjust(-1));lessHour.disabled=r.end-r.start<=(r.minimum||0)+1;
+     const moreHour=button("1 hour more",()=>adjust(1));moreHour.disabled=r.end-r.start>=(r.maximum||720*3600000)-1;
+     controls.append(lessHour,moreHour,less,more,button("Use calculated time",()=>{const index=rows.findIndex(row=>row.id===r.id);rows.filter(row=>row.active&&!row.fixed).forEach(row=>{delete overrides[row.id];});render();}));
+     item.appendChild(controls);item.appendChild(feedback);
+    }
+    const detail=document.createElement("p");detail.className="install-note";const hours=(r.end-r.start)/3600000;detail.textContent=(r.end>r.start?"Duration: "+vpDuration(r.end-r.start):"")+(r.minimum!==undefined?" | Min: "+Number((r.minimum/3600000).toFixed(2))+" h"+(r.maximum<720*3600000?" | Max: "+Number((r.maximum/3600000).toFixed(2))+" h":""):"");if(detail.textContent)item.appendChild(detail);$("plannerTimeline").appendChild(item);
+   });
+   const warnings=plan.errors.concat(plan.warnings);if(rows.some(r=>r.active&&r.start<Date.now()))warnings.push("Some preparation times are in the past.");
+   $("plannerStatus").textContent=plan.errors.length?"Resolve the timing conflicts below before exporting.":"";
+   $("plannerWarnings").replaceChildren();warnings.forEach(text=>{const li=document.createElement("li");li.textContent=text;$("plannerWarnings").appendChild(li);});
+   $("plannerWarningDetails").classList.toggle("hidden",!warnings.length);$("plannerWarningCount").textContent=warnings.length+" timing notes / warnings";
+   $("plannerAdjusted").textContent="";
+   $("plannerStatus").className=warnings.length?"notice":"install-note";
+   const conflicts=plan.errors.length>0;$("plannerExport").disabled=conflicts;persist();vpRender();
+  }catch(error){$("plannerTimeline").replaceChildren();rows=[];vpRender();$("plannerStatus").textContent=error.message;$("plannerStatus").className="notice";}
+ }
+ function selectRecipe(next){if(next===key)return;key=next;root.classList.toggle("hidden",!configs[key]);if(!configs[key])return;let stored={};try{stored=JSON.parse(localStorage.getItem("flexiblePizzaPlanner_"+key)||"{}");if(!stored||typeof stored!=="object")stored={};}catch(error){stored={};}overrides=stored.overrides&&typeof stored.overrides==="object"?stored.overrides:{};
+  if((key==="type2"||key==="coldFerment")&&overrides.pull&&!overrides.portion){const start=Number(overrides.pull.start);overrides.portion={start,end:start+Number(stored.settings&&stored.settings.ballMinutes!==undefined?stored.settings.ballMinutes:15)*60000};}
+  if(["type1","type2","coldFerment"].includes(key))delete overrides.pull;
+  if(key==="type1"){
+   let applied=false;try{applied=localStorage.getItem("doughRoomTempMax28Warm6V1")==="true";}catch(error){}
+   if(!applied){stored.settings=stored.settings||{};stored.settings.maximumBulkHours=28;stored.settings.maximumWarmHours=6;try{localStorage.setItem("doughRoomTempMax28Warm6V1","true");}catch(error){}}
+  }
+  if(key==="type2"){
+   let applied=false;try{applied=localStorage.getItem("doughWarmColdScreenshotDefaultsV1")==="true";}catch(error){}
+   if(!applied){stored.settings={...(stored.settings||{}),...configs.type2};try{localStorage.setItem("doughWarmColdScreenshotDefaultsV1","true");}catch(error){}}
+  }
+  if(["grinderRoll","coldFerment","type2","poolishPizza"].includes(key)){
+   const migrationKey="doughRecipeScreenshotSettingsV2_"+key;
+   let applied=false;try{applied=localStorage.getItem(migrationKey)==="true";}catch(error){}
+   if(!applied){stored.settings={...(stored.settings||{}),...configs[key]};try{localStorage.setItem(migrationKey,"true");}catch(error){}}
+  }
+  defs.forEach(([id,label,fallback])=>{const raw=stored.settings&&stored.settings[id]!==undefined?stored.settings[id]:configs[key][id]!==undefined?configs[key][id]:minimumIds&&Object.values(minimumIds).includes(id)?((configs[key][fermentFields[Object.keys(minimumIds).find(stage=>minimumIds[stage]===id)]]??defs.find(d=>d[0]===fermentFields[Object.keys(minimumIds).find(stage=>minimumIds[stage]===id)])[2])/60):(configs[key][id]===undefined?fallback:configs[key][id]);$("flex_"+id).value=hourField(id)?Number((raw/60).toFixed(8)):raw;const wrap=$("flex_"+id).closest(".field");if(Object.values(minimumIds).includes(id)||Object.values(maximumIds).includes(id)){const stage=Object.keys(minimumIds).find(stage=>minimumIds[stage]===id||maximumIds[stage]===id);wrap.classList.toggle("hidden",(stage==="bulk"&&!["type1","type2"].includes(key))||(stage==="cold"&&key==="type1")||(stage==="poolishFerment"&&key!=="poolishPizza")||(stage==="proof"&&key!=="grinderRoll"));return;}wrap.classList.toggle("hidden",(["shapeMinutes","proofMinutes","scoreMinutes","coveredMinutes","uncoveredMinutes"].includes(id)&&key!=="grinderRoll")||(id.startsWith("poolish")&&key!=="poolishPizza")||(id==="bulkMinutes"&&key!=="type1"&&key!=="type2")||(id==="coldMinutes"&&key==="type1"));});
+  if(stored.bake)$("bakeAt").value=stored.bake;
+  const selected=document.querySelector('[data-recipe-key="'+key+'"]');$("plannerRecipe").textContent=selected?selected.textContent:key;
+  $("plannerHeading").textContent=key==="grinderRoll"?"Grinder roll bake planner":"Pizza bake planner";
+  root.querySelector('label[for="bakeAt"]').textContent=key==="grinderRoll"?"When do the rolls go into the oven?":"When does the first pizza go into the oven?";
+  root.querySelector('label[for="flex_warmMinutes"]').textContent=key==="grinderRoll"?"Warm-up before shaping guideline (hours)":"Final proof guideline (hours)";
+  render();
+ }
+ function quickDate(saturday){const date=new Date();date.setHours(17,0,0,0);if(saturday){let days=(6-date.getDay()+7)%7;if(!days&&date<=new Date())days=7;date.setDate(date.getDate()+days);}else date.setDate(date.getDate()+1);$("bakeAt").value=local(date);overrides={};render();}
+ $("bakeAt").addEventListener("change",()=>{overrides={};render();});
+ $("plannerSaturday").addEventListener("click",()=>quickDate(true));$("plannerTomorrow").addEventListener("click",()=>quickDate(false));
+ $("plannerReset").addEventListener("click",()=>{overrides={};render();});
+ $("plannerExport").addEventListener("click",()=>{
+  const stamp=t=>new Date(t).toISOString().replace(/[-:]/g,"").replace(/\.\d{3}Z$/,"Z");const escape=t=>String(t).replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
+  const lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Dough Calculator//Flexible Planner//EN"];
+  rows.filter(r=>r.active||r.id==="finishBake").forEach((r,i)=>lines.push("BEGIN:VEVENT","UID:flex-"+r.start+"-"+i+"@dough.local","DTSTAMP:"+stamp(Date.now()),"DTSTART:"+stamp(r.id==="finishBake"?r.end:r.start),"DTEND:"+stamp(r.id==="finishBake"?r.end+60000:Math.max(r.end,r.start+60000)),"SUMMARY:"+escape(r.id==="finishBake"?"Remove rolls from oven":r.title),"DESCRIPTION:"+escape(r.note),"END:VEVENT"));lines.push("END:VCALENDAR");
+  const encoder=new TextEncoder();const folded=lines.map(line=>{let out="",part="";for(const c of line){if(encoder.encode(part+c).length>75){out+=part+"\r\n";part=" ";}part+=c;}return out+part;});const url=URL.createObjectURL(new Blob([folded.join("\r\n")+"\r\n"],{type:"text/calendar;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download=key==="grinderRoll"?"grinder-roll-plan.ics":"pizza-plan.ics";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ });
+ document.querySelectorAll("[data-recipe-key]").forEach(b=>b.addEventListener("click",()=>selectRecipe(b.dataset.recipeKey)));
+ loadAvailability();
+ quickDate(true);const selected=document.querySelector("[data-recipe-key].primary");selectRecipe(selected?selected.dataset.recipeKey:"type1");
+})();
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded",function rememberPlannerPreferences(){
+ const storageKey="doughPlannerPreferencesV1";
+ const ids=["availableEnabled","weekdayAvailable","weekdayStart","weekdayEnd","weekdayStart2","weekdayEnd2","weekendAvailable","weekendStart","weekendEnd"];
+ const sections=Array.from(document.querySelectorAll("#bakePlanner details, details#bakePlanner"));
+ const byId=id=>document.getElementById(id);
+ let saved=null;
+ try{saved=JSON.parse(localStorage.getItem(storageKey)||"null");}catch(error){}
+ if(saved&&typeof saved==="object"){
+  if(saved.availability&&typeof saved.availability==="object"){
+   const second=byId("weekdayRange2");
+   if(typeof saved.secondRange==="boolean"&&saved.secondRange===second.classList.contains("hidden"))byId("addWeekdayRange").click();
+   ids.forEach(id=>{
+    const input=byId(id),value=saved.availability[id];
+    if(input.type==="checkbox"){if(typeof value==="boolean")input.checked=value;}
+    else if(typeof value==="string"&&(value===""||/^([01]\d|2[0-3]):[0-5]\d$/.test(value)))input.value=value;
+   });
+   byId("availableEnabled").dispatchEvent(new Event("change",{bubbles:true}));
+  }
+  if(saved.sections&&typeof saved.sections==="object")sections.forEach(section=>{if(typeof saved.sections[section.id]==="boolean")section.open=saved.sections[section.id];});
+ }
+ const save=()=>{
+  const availability={};ids.forEach(id=>{const input=byId(id);availability[id]=input.type==="checkbox"?input.checked:input.value;});
+  const state={availability,secondRange:!byId("weekdayRange2").classList.contains("hidden"),sections:{}};
+  sections.forEach(section=>{state.sections[section.id]=section.open;});
+  try{localStorage.setItem(storageKey,JSON.stringify(state));}catch(error){}
+ };
+ ids.forEach(id=>{byId(id).addEventListener("input",save);byId(id).addEventListener("change",save);});
+ byId("addWeekdayRange").addEventListener("click",save);
+ sections.forEach(section=>section.addEventListener("toggle",save));
+ window.addEventListener("pagehide",save);
+});
+</script>
+</body>
 </html>
