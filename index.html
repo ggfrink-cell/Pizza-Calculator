@@ -99,6 +99,17 @@
  #visualPlanner .vp-bar{height:44px;top:9px;min-width:28px;}
  #visualPlanner .vp-handle{width:26px;}
 }
+
+/* Keep native iPhone date inputs and action buttons on separate rows. */
+#vpEditor{min-width:0;max-width:100%;overflow:hidden;}
+#vpEditor .vp-edit-row{display:flex;align-items:flex-start;}
+#vpEditor .vp-edit-row>label{flex:1 1 100%;width:100%;min-width:0;max-width:100%;}
+#vpEditor input{display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;font-size:16px;text-align:left;}
+#vpEditor input[type="datetime-local"]{-webkit-appearance:none;appearance:none;}
+#vpEditor .vp-edit-row>button{flex:0 1 auto;max-width:100%;white-space:normal;}
+#vpMessage{overflow-wrap:anywhere;}
+@media(max-width:550px){#vpEditor .vp-edit-row>button{flex:1 1 120px;}}
+#vpBuild{font-size:10px;font-weight:400;color:var(--muted,#706657);margin-left:6px;white-space:nowrap;}
 </style>
  </head>
  <body>
@@ -151,8 +162,8 @@
 <details id="plannerWarningDetails"><summary id="plannerWarningCount">Timing notes / warnings</summary><ul id="plannerWarnings"></ul></details>
 <details id="plannerSchedule" open><summary>Schedule: step by step</summary>
 <div id="visualPlanner">
-<div class="vp-toolbar"><div><strong>Schedule timeline</strong><div class="vp-legend"><span class="vp-dot vp-action"></span>Your time <span class="vp-dot vp-ferment"></span>Fermentation <span class="vp-dot vp-bake"></span>Bake</div></div><label>View <select id="vpView"><option value="timeline">Timeline</option><option value="both">Timeline + steps</option><option value="steps">Steps</option></select></label><label><span>Long ferments</span><select id="vpCompact"><option value="compact">Compact</option><option value="actual">Actual time scale</option></select></label><label>Scale <select id="vpScale"><option value="18">Overview</option><option value="36" selected>Standard</option><option value="72">Detailed</option></select></label><button type="button" id="vpUndo" class="secondary" disabled>Undo last edit</button></div>
-<p class="vp-help">Drag bars to move; drag a ferment's right edge to resize. Swipe empty chart space to scroll. Drag the right edge of a ferment to change its duration. Click any bar for precise controls. Only you can move the bake target. // marks compressed time.</p>
+<div class="vp-toolbar"><div><strong>Schedule timeline</strong><span id="vpBuild">Touch v2</span><div class="vp-legend"><span class="vp-dot vp-action"></span>Your time <span class="vp-dot vp-ferment"></span>Fermentation <span class="vp-dot vp-bake"></span>Bake</div></div><label>View <select id="vpView"><option value="timeline">Timeline</option><option value="both">Timeline + steps</option><option value="steps">Steps</option></select></label><label><span>Long ferments</span><select id="vpCompact"><option value="compact">Compact</option><option value="actual">Actual time scale</option></select></label><label>Scale <select id="vpScale"><option value="18">Overview</option><option value="36" selected>Standard</option><option value="72">Detailed</option></select></label><button type="button" id="vpUndo" class="secondary" disabled>Undo last edit</button></div>
+<p class="vp-help">Drag brown bars to move; drag the right edge of teal ferments to resize. Swipe empty chart space to scroll. Drag the right edge of a ferment to change its duration. Click any bar for precise controls. Only you can move the bake target. // marks compressed time.</p>
 <div id="vpCompressionSummary" class="vp-help"></div>
 <div id="vpMessage" role="status" aria-live="polite"></div>
 <div id="vpScroll" tabindex="0" aria-label="Schedule timeline; scroll horizontally to see all days"><div id="vpChart"></div></div>
@@ -2091,6 +2102,15 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
             group([task("score", "Transfer and score rolls", minutes("scoreMinutes", 5), "Transfer to parchment and make four shallow scores on each loaf.")], true));
     } else throw new Error("This recipe does not have a scheduler.");
 
+    for(const block of sequence.filter(block=>block.tasks)){
+        if(block.fixed){block.tasks.forEach(row=>{delete overrides[row.id];});continue;}
+        if(block.tasks.length<2)continue;
+        const anchorIndex=block.tasks.findIndex(row=>overrides[row.id]);
+        if(anchorIndex<0)continue;
+        const preceding=block.tasks.slice(0,anchorIndex).reduce((sum,row)=>sum+row.length,0);
+        let start=overrides[block.tasks[anchorIndex].id].start-preceding;
+        for(const row of block.tasks){overrides[row.id]={start,end:start+row.length};start+=row.length;}
+    }
     const minimumFields={bulk:"minimumBulkHours",cold:"minimumColdHours",poolishFerment:"minimumPoolishHours",warm:"minimumWarmHours",proof:"minimumProofHours"};
     for(const block of sequence.filter(block=>!block.tasks)){
         const field=minimumFields[block.id];
@@ -2295,7 +2315,7 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
 
  function vpCompressedDuration(milliseconds){return vpDuration(milliseconds);}
  function vpDuration(milliseconds){const minutes=milliseconds/60000,hours=minutes/60;return minutes<60?Number(minutes.toFixed(2))+" min":Number(hours.toFixed(2))+" h"+(hours>24?" ("+Number((hours/24).toFixed(2))+" days)":"");}
- let vpSelected=null,vpUndoState=null;
+ let vpSelected=null,vpUndoState=null,vpGestureActive=false,vpSuppressClickUntil=0;
  function vpSetBake(timestamp){
   const date=new Date(timestamp);
   if(!Number.isFinite(+date)||date.getFullYear()<2000||date.getFullYear()>2100){vpNotify("Choose a valid bake date between 2000 and 2100.");return false;}
@@ -2318,6 +2338,7 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
   try{
    const candidate=plannerInitialPlan(key,$("bakeAt").value,settings(),JSON.parse(JSON.stringify(proposed)),readAvailability());
    const problems=[...candidate.errors];
+   if(candidate.rows.some(r=>r.id.startsWith("wait_")))problems.push("This move would add an unplanned waiting period.");
    if(candidate.rows.some(r=>r.minimum!==undefined&&(r.end-r.start<r.minimum-1||r.end-r.start>r.maximum+1)))problems.push("Fermentation limits would be exceeded.");
    if(candidate.rows.some(r=>r.active&&!r.fixed&&!plannerInsideWindow(r.start,r.end,readAvailability())))problems.push("Preparation must fit your available hours.");
    if(required){const actual=candidate.rows.find(r=>r.id===required.id);if(!actual||Math.abs(actual.start-required.start)>1||Math.abs(actual.end-required.end)>1)problems.push("This position cannot fit the schedule.");}
@@ -2328,11 +2349,13 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
  function vpDragTarget(row,rawTime,resize,windows,xAt){
   let target=Math.round(rawTime/60000)*60000;
   if(!resize&&row.id!=="bake"){
-   const length=row.end-row.start;
+   const linked=(key==="grinderRoll"||key==="poolishPizza")&&["make","portion"].includes(row.id)?rows.filter(r=>["make","portion"].includes(r.id)):[row];
+   const groupStart=Math.min(...linked.map(r=>r.start)),groupEnd=Math.max(...linked.map(r=>r.end));
+   const length=groupEnd-groupStart,offset=row.start-groupStart;
    const candidates=[];
    for(const w of windows){
     if(w.end-w.start<length)continue;
-    candidates.push(w.start,w.end-length);
+    candidates.push(w.start+offset,w.end-length+offset);
    }
    let bestDistance=9;
    for(const candidate of candidates){
@@ -2345,7 +2368,10 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
  function vpMove(row,minutes){
   const delta=minutes*60000;
   if(row.id==="bake")return vpSetBake(row.start+delta);
-  const proposed={...overrides,[row.id]:{start:row.start+delta,end:row.end+delta}};
+  if(row.id==="score"&&key==="grinderRoll"){vpNotify("Scoring stays immediately before baking. Move Bake rolls to change that time.");return false;}
+  const proposed={...overrides};
+  const linked=(key==="grinderRoll"||key==="poolishPizza")&&["make","portion"].includes(row.id)?rows.filter(r=>["make","portion"].includes(r.id)):[row];
+  for(const task of linked)proposed[task.id]={start:task.start+delta,end:task.end+delta};
   return vpCommit(proposed,{id:row.id,start:row.start+delta,end:row.end+delta});
  }
  function vpResize(row,hours){
@@ -2367,6 +2393,7 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
    controls.append(button("Apply bake time",()=>vpSetBake(+new Date(input.value))),button("15 min earlier",()=>vpSetBake(row.start-900000)),button("15 min later",()=>vpSetBake(row.start+900000)));
    return;
   }
+  if(row.id==="score"&&key==="grinderRoll"){info.textContent+=". Scoring stays immediately before baking; edit Bake rolls to move it.";return;}
   if(row.fixed)return;
   if(row.active){
    const label=document.createElement("label");label.textContent="Start time";
@@ -2428,20 +2455,68 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
    bar.title=row.title+" | "+format(row.start)+" to "+format(row.end);bar.setAttribute("aria-label",bar.title);bar.setAttribute("aria-pressed",String(vpSelected===row.id));
    if(!row.active&&row.minimum!==undefined){const handle=document.createElement("span");handle.className="vp-handle";handle.title="Drag to change duration";bar.append(handle);}
    let dragged=false;
-   bar.addEventListener("click",()=>{if(dragged){dragged=false;return;}vpSelected=row.id;vpRender();});
+   bar.addEventListener("click",()=>{if(dragged||Date.now()<vpSuppressClickUntil){dragged=false;return;}vpSelected=row.id;vpRender();});
    bar.addEventListener("keydown",event=>{if((row.fixed&&row.id!=="bake")||!["ArrowLeft","ArrowRight"].includes(event.key))return;event.preventDefault();const direction=event.key==="ArrowRight"?1:-1;if(row.active)vpMove(row,direction*15);else vpResize(row,direction*0.25);});
-   bar.addEventListener("pointerdown",event=>{
-    const resize=event.target.classList.contains("vp-handle");
-    if((row.fixed&&row.id!=="bake")||(!row.active&&!resize)||(event.pointerType!=="touch"&&event.button!==0)||event.isPrimary===false)return;
-    const x=event.clientX,originalLeft=parseFloat(bar.style.left),originalWidth=parseFloat(bar.style.width);let delta=0;
-    bar.setPointerCapture(event.pointerId);
+   const beginGesture=(point,resize,install)=>{
+    if(vpGestureActive||(row.fixed&&row.id!=="bake")||(!row.active&&!resize))return;
+    vpGestureActive=true;
+    const x=point.clientX,originalLeft=parseFloat(bar.style.left),originalWidth=parseFloat(bar.style.width),scrollStart=scroll.scrollLeft;
+    let delta=0;
     bar.classList.add("vp-dragging");
-    const move=e=>{const pixels=e.clientX-x;if(Math.abs(pixels)>4)dragged=true;if(!dragged)return;e.preventDefault();const anchor=resize?row.end:row.start;const rawTime=timeAt(xAt(anchor)+pixels);const target=vpDragTarget(row,rawTime,resize,windows,xAt);delta=(target-anchor)/hour;if(resize)bar.style.width=Math.max(14,xAt(row.end+delta*hour)-xAt(row.start))+"px";else bar.style.left=(xAt(row.start+delta*hour))+"px";vpNotify(resize?"Duration: "+vpDuration(row.end-row.start+delta*hour)+"; release to validate.":"Start: "+format(row.start+delta*hour)+"; release to validate.");};
-    const cleanup=()=>{bar.classList.remove("vp-dragging");bar.removeEventListener("lostpointercapture",cancel);bar.removeEventListener("pointermove",move);bar.removeEventListener("pointerup",up);bar.removeEventListener("pointercancel",cancel);};
-    const up=()=>{cleanup();if(!dragged)return;if(resize)vpResize(row,delta);else vpMove(row,delta*60);if(bar.isConnected){bar.style.left=originalLeft+"px";bar.style.width=originalWidth+"px";}};
-    const cancel=()=>{cleanup();bar.style.left=originalLeft+"px";bar.style.width=originalWidth+"px";};
-    bar.addEventListener("pointermove",move);bar.addEventListener("pointerup",up);bar.addEventListener("pointercancel",cancel);bar.addEventListener("lostpointercapture",cancel);
-   }, {passive:false});
+    const move=point=>{
+     const pixels=point.clientX-x+scroll.scrollLeft-scrollStart;
+     if(Math.abs(pixels)>3)dragged=true;
+     if(!dragged)return;
+     const anchor=resize?row.end:row.start;
+     const rawTime=timeAt(xAt(anchor)+pixels);
+     const target=vpDragTarget(row,rawTime,resize,windows,xAt);
+     delta=(target-anchor)/hour;
+     if(resize)bar.style.width=Math.max(28,xAt(row.end+delta*hour)-xAt(row.start))+"px";
+     else bar.style.left=xAt(row.start+delta*hour)+"px";
+     vpNotify(resize?"Duration: "+vpDuration(Math.max(0,row.end-row.start+delta*hour))+"; release to apply.":"Start: "+format(row.start+delta*hour)+"; release to apply.");
+    };
+    const finish=cancelled=>{
+     vpGestureActive=false;bar.classList.remove("vp-dragging");
+     if(bar.isConnected){bar.style.left=originalLeft+"px";bar.style.width=originalWidth+"px";}
+     if(cancelled){vpNotify("Drag cancelled; schedule unchanged.");return;}
+     if(!dragged)return;
+     vpSuppressClickUntil=Date.now()+600;
+     if(resize)vpResize(row,delta);else vpMove(row,delta*60);
+    };
+    install(move,finish);
+   };
+   bar.addEventListener("touchstart",event=>{
+    if(event.touches.length!==1)return;
+    const resize=!!event.target.closest(".vp-handle");
+    if((row.fixed&&row.id!=="bake")||(!row.active&&!resize))return;
+    event.preventDefault();
+    const touch=event.changedTouches[0],id=touch.identifier;
+    beginGesture(touch,resize,(move,finish)=>{
+     const find=list=>Array.from(list).find(t=>t.identifier===id);
+     const onMove=e=>{const t=find(e.touches);if(!t)return;e.preventDefault();move(t);};
+     const cleanup=()=>{document.removeEventListener("touchmove",onMove);document.removeEventListener("touchend",onEnd);document.removeEventListener("touchcancel",onCancel);};
+     const onEnd=e=>{if(!find(e.changedTouches))return;const wasDrag=dragged;cleanup();finish(false);if(!wasDrag){vpSelected=row.id;vpRender();}};
+     const onCancel=()=>{cleanup();finish(true);};
+     document.addEventListener("touchmove",onMove,{passive:false});
+     document.addEventListener("touchend",onEnd,{passive:false});
+     document.addEventListener("touchcancel",onCancel,{passive:false});
+    });
+   },{passive:false});
+   bar.addEventListener("pointerdown",event=>{
+    if(event.pointerType==="touch"||event.button!==0||event.isPrimary===false)return;
+    const resize=!!event.target.closest(".vp-handle");
+    if((row.fixed&&row.id!=="bake")||(!row.active&&!resize))return;
+    event.preventDefault();
+    beginGesture(event,resize,(move,finish)=>{
+     const id=event.pointerId;
+     const onMove=e=>{if(e.pointerId!==id)return;e.preventDefault();move(e);};
+     const cleanup=()=>{document.removeEventListener("pointermove",onMove);document.removeEventListener("pointerup",onEnd);document.removeEventListener("pointercancel",onCancel);};
+     const onEnd=e=>{if(e.pointerId!==id)return;cleanup();finish(false);};
+     const onCancel=e=>{if(e.pointerId!==id)return;cleanup();finish(true);};
+     document.addEventListener("pointermove",onMove,{passive:false});
+     document.addEventListener("pointerup",onEnd);document.addEventListener("pointercancel",onCancel);
+    });
+   });
    bar.addEventListener("contextmenu",event=>event.preventDefault());
    bar.draggable=false;
    track.append(bar);
@@ -2451,7 +2526,7 @@ function plannerInitialPlan(key, bakeTime, settings, suppliedOverrides = {}, ava
   scroll.scrollLeft=position;vpEditor();
  }
  let vpLastWidth=0,vpResizeTimer;
- const vpObserver=new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(Math.abs(width-vpLastWidth)<1)return;vpLastWidth=width;clearTimeout(vpResizeTimer);vpResizeTimer=setTimeout(()=>{if(rows.length)vpRender();},100);});
+ const vpObserver=new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(Math.abs(width-vpLastWidth)<1)return;vpLastWidth=width;clearTimeout(vpResizeTimer);vpResizeTimer=setTimeout(()=>{if(rows.length&&!vpGestureActive)vpRender();},100);});
  vpObserver.observe($("vpScroll"));
  $("vpCompact").addEventListener("change",()=>{vpSave();vpRender();});
  $("vpView").addEventListener("change",()=>{vpSave();vpRender();});$("vpScale").addEventListener("change",()=>{vpSave();vpRender();});
